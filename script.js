@@ -10,7 +10,7 @@ const WEDDING_DATA = {
     parents: "김건호 · 김선이",
   },
   title: "결혼합니다",
-  heroImage: "",
+  heroImage: "assets/photos/photo-01.jpg",
   dateText: "2026.08.22 SAT 11:00 AM",
   event: {
     year: "2026",
@@ -74,9 +74,12 @@ const WEDDING_DATA = {
   photos: Array.from({ length: 6 }, (_, index) => {
     const number = String(index + 1).padStart(2, "0");
     return {
-      src: "",
+      src: index === 0 ? "assets/photos/photo-01.jpg" : "",
       suggestedFile: `assets/photos/photo-${number}.jpg`,
-      alt: `김우재와 김다빈의 흑백 웨딩 사진 ${index + 1}`,
+      alt:
+        index === 0
+          ? "벚꽃 아래 선글라스를 든 김우재와 김다빈"
+          : `김우재와 김다빈의 흑백 웨딩 사진 ${index + 1}`,
     };
   }),
   closing: "귀한 걸음으로 함께해 주세요.",
