@@ -183,6 +183,7 @@ figure {
   text-align: center;
   font-size: clamp(1rem, 4.1vw, 1.14rem);
   line-height: 2.18;
+  word-break: keep-all;
 }
 
 .invitation-text p {
