@@ -34,4 +34,5 @@ python3 -m http.server 8000
 - 문구, 예식 정보, 지도 링크, 교통 정보는 `script.js` 상단의 `WEDDING_DATA`에서 수정합니다.
 - 사진은 `assets/photos/hero.jpg`, `assets/photos/photo-01.jpg` - `photo-06.jpg` 파일로 넣고, `script.js` 상단의 `heroImage`와 `photos[].src`를 채웁니다.
 - 계좌 정보는 `script.js` 상단의 `giftAccounts`에 `bank`, `account`, `holder`를 채우면 표시됩니다. 비어 있는 계좌는 화면에 나오지 않습니다.
+- 한글 본문 폰트는 네이버 `마루 부리(MaruBuri)` 웹폰트를 사용합니다.
 - 종이 질감 배경은 `assets/paper-ivory.webp`, `assets/paper-ivory.jpg`를 사용합니다.
