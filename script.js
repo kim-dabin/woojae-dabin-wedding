@@ -121,6 +121,12 @@ function nl2br(value) {
   return escapeHtml(value).replaceAll("\n", "<br />");
 }
 
+function renderVerticalText(value) {
+  return Array.from(value)
+    .map((char) => `<span aria-hidden="true">${escapeHtml(char)}</span>`)
+    .join("");
+}
+
 function render() {
   const data = WEDDING_DATA;
   const coupleNames = `${data.groom.name} · ${data.bride.name}`;
@@ -139,7 +145,7 @@ function render() {
       ${data.heroImage ? `<div class="hero-photo" aria-hidden="true"><img src="${escapeHtml(data.heroImage)}" alt="" /></div>` : ""}
       <div class="hero-inner">
         <div class="hero-mark">
-          <h1 id="heroTitle" class="vertical-title">${escapeHtml(data.title)}</h1>
+          <h1 id="heroTitle" class="vertical-title" aria-label="${escapeHtml(data.title)}">${renderVerticalText(data.title)}</h1>
         </div>
         <div class="hero-rule" aria-hidden="true"></div>
         <div class="couple-block">

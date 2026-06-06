@@ -176,12 +176,13 @@ figure {
 
 .vertical-title {
   margin: 0;
-  writing-mode: vertical-rl;
-  text-orientation: upright;
+  display: inline-grid;
+  gap: 0.18em;
+  justify-items: center;
   color: var(--ink);
   font-size: clamp(1.6rem, 6.4vw, 2.08rem);
   font-weight: 500;
-  line-height: 1.65;
+  line-height: 1;
 }
 
 .couple-block {
