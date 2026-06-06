@@ -70,6 +70,7 @@ const WEDDING_DATA = {
       ],
     },
   ],
+  showGiftAccountPreview: true,
   giftAccounts: [
     {
       side: "신랑측",
@@ -127,7 +128,9 @@ function render() {
   const visibleGiftGroups = data.giftAccounts
     .map((group) => ({
       ...group,
-      people: group.people.filter((person) => person.bank && person.account),
+      people: data.showGiftAccountPreview
+        ? group.people
+        : group.people.filter((person) => person.bank && person.account),
     }))
     .filter((group) => group.people.length);
 
@@ -253,19 +256,24 @@ function renderGiftGroup(group) {
 }
 
 function renderGiftPerson(person) {
+  const hasAccount = Boolean(person.bank && person.account);
   const copyText = `${person.bank} ${person.account} ${person.holder}`;
   return `
-    <div class="gift-row">
+    <div class="gift-row${hasAccount ? "" : " is-pending"}">
       <div class="gift-person">
         <span class="gift-role">${escapeHtml(person.role)}</span>
         <strong>${escapeHtml(person.name)}</strong>
       </div>
       <div class="gift-account">
-        <span>${escapeHtml(person.bank)}</span>
+        ${
+          hasAccount
+            ? `<span>${escapeHtml(person.bank)}</span>
         <span>${escapeHtml(person.account)}</span>
-        <span>예금주 ${escapeHtml(person.holder)}</span>
+        <span>예금주 ${escapeHtml(person.holder)}</span>`
+            : `<span class="gift-pending">계좌번호 준비 중</span>`
+        }
       </div>
-      <button class="copy-button" type="button" data-copy="${escapeHtml(copyText)}">복사</button>
+      ${hasAccount ? `<button class="copy-button" type="button" data-copy="${escapeHtml(copyText)}">복사</button>` : ""}
     </div>
   `;
 }
