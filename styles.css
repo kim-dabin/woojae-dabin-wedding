@@ -224,6 +224,15 @@ figure {
   scrollbar-color: var(--line-strong) transparent;
 }
 
+.photo-strip.is-single {
+  width: 100%;
+  justify-content: center;
+  margin-left: 0;
+  padding-right: 0;
+  padding-left: 0;
+  overflow: visible;
+}
+
 .photo-frame {
   flex: 0 0 min(60vw, 230px);
   aspect-ratio: 3 / 4.18;

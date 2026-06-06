@@ -105,6 +105,7 @@ function nl2br(value) {
 function render() {
   const data = WEDDING_DATA;
   const coupleNames = `${data.groom.name} · ${data.bride.name}`;
+  const visiblePhotos = data.photos.filter((photo) => photo.src);
 
   app.innerHTML = `
     <section class="section hero" aria-labelledby="heroTitle">
@@ -135,8 +136,8 @@ function render() {
 
     <section class="section gallery" aria-labelledby="galleryTitle">
       <p id="galleryTitle" class="section-kicker">GALLERY</p>
-      <div class="photo-strip" aria-label="흑백 사진 갤러리">
-        ${data.photos.map(renderPhoto).join("")}
+      <div class="photo-strip${visiblePhotos.length === 1 ? " is-single" : ""}" aria-label="흑백 사진 갤러리">
+        ${visiblePhotos.map(renderPhoto).join("")}
       </div>
     </section>
 
@@ -179,12 +180,12 @@ function render() {
   app.querySelector("[data-calendar]").addEventListener("click", downloadCalendar);
 }
 
-function renderPhoto(photo, index) {
+function renderPhoto(photo) {
   const hasImage = Boolean(photo.src);
   const label = hasImage ? `${photo.alt} 크게 보기` : `${photo.alt} 자리`;
   return `
     <figure class="photo-frame">
-      <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo="${index}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
+      <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
         ${hasImage ? `<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="lazy" />` : ""}
       </button>
     </figure>
@@ -255,8 +256,10 @@ function wireGallery() {
     });
 
     button.addEventListener("click", () => {
-      const photo = WEDDING_DATA.photos[Number(button.dataset.photo)];
-      openPhoto(photo);
+      openPhoto({
+        src: button.dataset.photoSrc,
+        alt: button.dataset.photoAlt,
+      });
     });
   });
 }
