@@ -169,7 +169,7 @@ function render() {
 
     <section class="section gallery" aria-labelledby="galleryTitle">
       <p id="galleryTitle" class="section-kicker">GALLERY</p>
-      <div class="photo-strip${visiblePhotos.length === 1 ? " is-single" : ""}" aria-label="흑백 사진 갤러리">
+      <div class="photo-strip${visiblePhotos.length === 1 ? " is-single" : ""}" aria-label="사진 갤러리">
         ${visiblePhotos.map(renderPhoto).join("")}
       </div>
     </section>

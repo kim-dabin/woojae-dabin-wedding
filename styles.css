@@ -251,6 +251,7 @@ figure {
 .photo-strip {
   width: calc(100% + var(--side));
   display: flex;
+  align-items: flex-start;
   gap: 10px;
   margin-left: calc(var(--side) * -0.5);
   padding: 2px var(--side) 12px calc(var(--side) * 0.5);
@@ -271,29 +272,30 @@ figure {
 
 .photo-frame {
   flex: 0 0 min(60vw, 230px);
-  aspect-ratio: 3 / 4.18;
-  border: 1px solid var(--line-strong);
+  margin: 0;
   background: rgba(252, 250, 244, 0.42);
 }
 
 .photo-button {
   position: relative;
+  display: block;
   width: 100%;
-  height: 100%;
   padding: 0;
-  border: 0;
+  border: 1px solid var(--line-strong);
   background: transparent;
   cursor: zoom-in;
+  line-height: 0;
+  overflow: hidden;
 }
 
 .photo-button img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  filter: grayscale(1) contrast(0.92);
+  height: auto;
 }
 
 .photo-button.is-empty {
+  aspect-ratio: 2 / 3;
   cursor: default;
 }
 
@@ -660,10 +662,10 @@ figure {
 }
 
 .photo-dialog img {
+  display: block;
   width: 100%;
   max-height: calc(100svh - 78px);
   object-fit: contain;
-  filter: grayscale(1);
 }
 
 .dialog-close {
