@@ -70,6 +70,24 @@ const WEDDING_DATA = {
       ],
     },
   ],
+  giftAccounts: [
+    {
+      side: "신랑측",
+      people: [
+        { role: "신랑", name: "김우재", bank: "", account: "", holder: "김우재" },
+        { role: "아버지", name: "김성대", bank: "", account: "", holder: "김성대" },
+        { role: "어머니", name: "류혜정", bank: "", account: "", holder: "류혜정" },
+      ],
+    },
+    {
+      side: "신부측",
+      people: [
+        { role: "신부", name: "김다빈", bank: "", account: "", holder: "김다빈" },
+        { role: "아버지", name: "김건호", bank: "", account: "", holder: "김건호" },
+        { role: "어머니", name: "김선이", bank: "", account: "", holder: "김선이" },
+      ],
+    },
+  ],
   photos: Array.from({ length: 6 }, (_, index) => {
     const number = String(index + 1).padStart(2, "0");
     return {
@@ -106,6 +124,12 @@ function render() {
   const data = WEDDING_DATA;
   const coupleNames = `${data.groom.name} · ${data.bride.name}`;
   const visiblePhotos = data.photos.filter((photo) => photo.src);
+  const visibleGiftGroups = data.giftAccounts
+    .map((group) => ({
+      ...group,
+      people: group.people.filter((person) => person.bank && person.account),
+    }))
+    .filter((group) => group.people.length);
 
   app.innerHTML = `
     <section class="section hero" aria-labelledby="heroTitle">
@@ -169,6 +193,8 @@ function render() {
       </dl>
     </section>
 
+    ${visibleGiftGroups.length ? renderGiftAccounts(visibleGiftGroups) : ""}
+
     <section class="section closing" aria-label="마무리 인사">
       <p class="closing-message">${escapeHtml(data.closing)}</p>
       <p class="closing-names">${escapeHtml(coupleNames)}</p>
@@ -177,6 +203,7 @@ function render() {
 
   wireHeroImage();
   wireGallery();
+  wireGiftAccounts();
   app.querySelector("[data-calendar]").addEventListener("click", downloadCalendar);
 }
 
@@ -197,6 +224,48 @@ function renderDirection(item) {
     <div class="way-item">
       <dt>${escapeHtml(item.term)}</dt>
       <dd>${item.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("")}</dd>
+    </div>
+  `;
+}
+
+function renderGiftAccounts(groups) {
+  return `
+    <section class="section gift" aria-labelledby="giftTitle">
+      <p id="giftTitle" class="section-kicker">ACCOUNT</p>
+      <h2 class="gift-title">마음 전하실 곳</h2>
+      <p class="gift-note">축하의 마음을 전해주셔서 감사합니다.</p>
+      <div class="gift-groups">
+        ${groups.map(renderGiftGroup).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderGiftGroup(group) {
+  return `
+    <details class="gift-group">
+      <summary>${escapeHtml(group.side)}</summary>
+      <div class="gift-list">
+        ${group.people.map(renderGiftPerson).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function renderGiftPerson(person) {
+  const copyText = `${person.bank} ${person.account} ${person.holder}`;
+  return `
+    <div class="gift-row">
+      <div class="gift-person">
+        <span class="gift-role">${escapeHtml(person.role)}</span>
+        <strong>${escapeHtml(person.name)}</strong>
+      </div>
+      <div class="gift-account">
+        <span>${escapeHtml(person.bank)}</span>
+        <span>${escapeHtml(person.account)}</span>
+        <span>예금주 ${escapeHtml(person.holder)}</span>
+      </div>
+      <button class="copy-button" type="button" data-copy="${escapeHtml(copyText)}">복사</button>
     </div>
   `;
 }
@@ -280,6 +349,35 @@ function closePhoto() {
   dialog.close();
   dialogImage.removeAttribute("src");
   dialogImage.alt = "";
+}
+
+function wireGiftAccounts() {
+  app.querySelectorAll("[data-copy]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      await copyText(button.dataset.copy);
+      button.textContent = "복사됨";
+      window.setTimeout(() => {
+        button.textContent = "복사";
+      }, 1400);
+    });
+  });
+}
+
+async function copyText(value) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    return;
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = value;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.top = "-9999px";
+  document.body.append(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
 }
 
 function escapeIcs(value) {
