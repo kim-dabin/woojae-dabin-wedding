@@ -366,6 +366,10 @@ function wireHeroImage() {
   image.addEventListener("error", () => {
     hero.classList.remove("has-photo");
   });
+
+  if (image.complete && image.naturalWidth > 0) {
+    hero.classList.add("has-photo");
+  }
 }
 
 function wireGallery() {
