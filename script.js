@@ -88,17 +88,33 @@ const WEDDING_DATA = {
       ],
     },
   ],
-  photos: Array.from({ length: 6 }, (_, index) => {
-    const number = String(index + 1).padStart(2, "0");
-    return {
-      src: index === 0 ? "assets/photos/photo-01.jpg" : "",
-      suggestedFile: `assets/photos/photo-${number}.jpg`,
-      alt:
-        index === 0
-          ? "벚꽃 아래 선글라스를 든 김우재와 김다빈"
-          : `김우재와 김다빈의 흑백 웨딩 사진 ${index + 1}`,
-    };
-  }),
+  photos: [
+    {
+      src: "assets/photos/photo-01.jpg",
+      suggestedFile: "assets/photos/photo-01.jpg",
+      alt: "벚꽃 아래 선글라스를 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-02.jpg",
+      suggestedFile: "assets/photos/photo-02.jpg",
+      alt: "풍년떡 방앗간 앞에서 숫자 풍선을 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-03.jpg",
+      suggestedFile: "assets/photos/photo-03.jpg",
+      alt: "풍년떡 방앗간 앞에서 포즈를 취한 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-04.jpg",
+      suggestedFile: "assets/photos/photo-04.jpg",
+      alt: "나무 아래 돗자리에서 서로를 촬영하는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-05.jpg",
+      suggestedFile: "assets/photos/photo-05.jpg",
+      alt: "오래된 건물 앞 벤치에 나란히 앉은 김우재와 김다빈",
+    },
+  ],
   closing: "귀한 걸음으로 함께해 주세요.",
 };
 
@@ -221,7 +237,7 @@ function renderPhoto(photo) {
   return `
     <figure class="photo-frame">
       <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
-        ${hasImage ? `<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="lazy" />` : ""}
+        ${hasImage ? `<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="eager" decoding="async" />` : ""}
       </button>
     </figure>
   `;
