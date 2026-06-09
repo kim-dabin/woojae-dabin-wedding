@@ -70,22 +70,21 @@ const WEDDING_DATA = {
       ],
     },
   ],
-  showGiftAccountPreview: true,
+  showGiftAccountPreview: false,
   giftAccounts: [
     {
       side: "신랑측",
       people: [
         { role: "신랑", name: "김우재", bank: "", account: "", holder: "김우재" },
-        { role: "아버지", name: "김성대", bank: "", account: "", holder: "김성대" },
-        { role: "어머니", name: "류혜정", bank: "", account: "", holder: "류혜정" },
+        { role: "부모님", name: "김성대 · 류혜정", bank: "기업은행", account: "918-006024-01-011", holder: "류혜정" },
       ],
     },
     {
       side: "신부측",
       people: [
         { role: "신부", name: "김다빈", bank: "", account: "", holder: "김다빈" },
-        { role: "아버지", name: "김건호", bank: "", account: "", holder: "김건호" },
-        { role: "어머니", name: "김선이", bank: "", account: "", holder: "김선이" },
+        { role: "아버지", name: "김건호", bank: "농협은행", account: "302-0594-9688-51", holder: "김건호" },
+        { role: "어머니", name: "김선이", bank: "농협은행", account: "302-0572-4256-31", holder: "김선이" },
       ],
     },
   ],
