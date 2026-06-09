@@ -114,6 +114,26 @@ const WEDDING_DATA = {
       suggestedFile: "assets/photos/photo-05.jpg",
       alt: "오래된 건물 앞 벤치에 나란히 앉은 김우재와 김다빈",
     },
+    {
+      src: "assets/photos/photo-06.jpg",
+      suggestedFile: "assets/photos/photo-06.jpg",
+      alt: "벚꽃 아래에서 아이스크림을 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-07.jpg",
+      suggestedFile: "assets/photos/photo-07.jpg",
+      alt: "실내 주방에서 딸기를 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-08.jpg",
+      suggestedFile: "assets/photos/photo-08.jpg",
+      alt: "실내 주방에서 함께 설거지하는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-09.jpg",
+      suggestedFile: "assets/photos/photo-09.jpg",
+      alt: "실내 주방에서 접시와 귤을 든 김우재와 김다빈",
+    },
   ],
   closing: "귀한 걸음으로 함께해 주세요.",
 };
