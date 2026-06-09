@@ -40,11 +40,12 @@
   --ink: #292823;
   --ink-soft: #4b4942;
   --muted: #767064;
-  --line: rgba(41, 40, 35, 0.2);
-  --line-strong: rgba(41, 40, 35, 0.36);
-  --wash: rgba(255, 252, 246, 0.56);
+  --line: rgba(41, 40, 35, 0.13);
+  --line-strong: rgba(41, 40, 35, 0.26);
+  --wash: rgba(255, 252, 246, 0.34);
   --max: 440px;
   --side: clamp(24px, 7vw, 42px);
+  --section-y: 78px;
   --serif: "MaruBuri", "Noto Serif KR", "AppleMyungjo", "Nanum Myeongjo", "Batang", Georgia, serif;
   --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -120,7 +121,7 @@ figure {
 
 .section {
   position: relative;
-  padding: 86px var(--side);
+  padding: var(--section-y) var(--side);
   border-top: 1px solid var(--line);
 }
 
@@ -129,12 +130,14 @@ figure {
 }
 
 .section-kicker {
-  margin: 0 0 34px;
+  margin: 0 0 32px;
   color: var(--muted);
   font-family: var(--sans);
   font-size: 0.68rem;
   font-weight: 500;
+  letter-spacing: 0.22em;
   line-height: 1.4;
+  text-align: center;
 }
 
 .hero {
@@ -151,7 +154,7 @@ figure {
   inset: 0;
   z-index: 0;
   display: none;
-  opacity: 0.26;
+  opacity: 0.42;
   mix-blend-mode: multiply;
 }
 
@@ -163,7 +166,7 @@ figure {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(0.92) brightness(1.04);
+  filter: grayscale(0.28) saturate(0.78) contrast(0.96) brightness(1);
 }
 
 .hero-inner {
@@ -172,25 +175,26 @@ figure {
   width: 100%;
   display: grid;
   justify-items: center;
-  gap: 38px;
+  gap: 42px;
 }
 
 .hero-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 188px;
+  min-height: 222px;
 }
 
 .vertical-title {
   margin: 0;
   display: inline-grid;
-  gap: 0.18em;
+  gap: 0.34em;
   justify-items: center;
   color: var(--ink);
   font-size: clamp(1.6rem, 6.4vw, 2.08rem);
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1;
+  word-break: keep-all;
 }
 
 .couple-block {
@@ -200,9 +204,9 @@ figure {
 
 .couple-names {
   margin: 0;
-  font-size: clamp(1.08rem, 4.5vw, 1.34rem);
+  font-size: clamp(1.1rem, 4.4vw, 1.34rem);
   font-weight: 600;
-  line-height: 1.8;
+  line-height: 1.75;
 }
 
 .date-line,
@@ -210,23 +214,25 @@ figure {
   margin: 10px 0 0;
   color: var(--ink-soft);
   font-family: var(--sans);
-  font-size: 0.77rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
   line-height: 1.65;
 }
 
 .hero-rule {
   width: 1px;
-  height: 64px;
-  background: var(--line-strong);
+  height: 72px;
+  background: var(--line);
 }
 
 .invitation-text {
   display: grid;
   gap: 18px;
-  margin: 0;
+  max-width: 18.5em;
+  margin: 0 auto;
   text-align: center;
   font-size: clamp(1rem, 4.1vw, 1.14rem);
-  line-height: 2.18;
+  line-height: 2.12;
   word-break: keep-all;
 }
 
@@ -257,39 +263,27 @@ figure {
 }
 
 .photo-strip {
-  width: calc(100% + var(--side));
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin-left: calc(var(--side) * -0.5);
-  padding: 2px var(--side) 12px calc(var(--side) * 0.5);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-strong) transparent;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 .photo-strip.is-single {
-  width: 100%;
-  justify-content: center;
-  margin-left: 0;
-  padding-right: 0;
-  padding-left: 0;
-  overflow: visible;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .photo-frame {
-  flex: 0 0 min(60vw, 230px);
   margin: 0;
-  background: rgba(252, 250, 244, 0.42);
+  background: transparent;
 }
 
 .photo-button {
   position: relative;
   display: block;
   width: 100%;
+  aspect-ratio: 4 / 5;
   padding: 0;
-  border: 1px solid var(--line-strong);
+  border: 0;
   background: transparent;
   cursor: zoom-in;
   line-height: 0;
@@ -299,11 +293,11 @@ figure {
 .photo-button img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
 .photo-button.is-empty {
-  aspect-ratio: 2 / 3;
   cursor: default;
 }
 
@@ -333,16 +327,17 @@ figure {
 
 .event-panel {
   display: grid;
-  grid-template-columns: 84px minmax(0, 1fr);
-  gap: 24px;
-  align-items: start;
+  justify-items: center;
+  text-align: center;
 }
 
 .date-mark {
+  width: min(132px, 54%);
   min-height: 118px;
   display: grid;
   justify-items: center;
   align-content: center;
+  margin-bottom: 30px;
   border-top: 1px solid var(--line-strong);
   border-bottom: 1px solid var(--line-strong);
   color: var(--ink);
@@ -371,39 +366,42 @@ figure {
 
 .event-copy h2 {
   margin: 0;
-  font-size: clamp(1.12rem, 4.6vw, 1.34rem);
+  font-size: clamp(1.08rem, 4.3vw, 1.28rem);
   font-weight: 650;
-  line-height: 1.72;
+  line-height: 1.8;
 }
 
 .event-copy p {
-  margin: 10px 0 0;
+  margin: 9px 0 0;
   color: var(--ink-soft);
   font-size: 0.94rem;
   line-height: 1.95;
+  word-break: keep-all;
 }
 
 .line-button,
 .nav-button,
 .copy-button {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 30px;
   align-items: center;
   justify-content: center;
-  padding: 8px 14px;
-  border: 1px solid var(--line-strong);
+  padding: 5px 1px 4px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
   border-radius: 0;
-  background: rgba(250, 247, 240, 0.34);
+  background: transparent;
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 0.78rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
   line-height: 1.3;
   text-decoration: none;
   cursor: pointer;
 }
 
 .line-button {
-  margin-top: 24px;
+  margin-top: 22px;
 }
 
 .line-button:focus-visible,
@@ -460,30 +458,44 @@ figure {
 .nav-buttons {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-top: 20px;
+  gap: 0;
+  margin-top: 18px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-button {
+  min-height: 46px;
+  border-bottom: 0;
+}
+
+.nav-button + .nav-button {
+  border-left: 1px solid var(--line);
 }
 
 .way-list {
   display: grid;
-  gap: 24px;
+  gap: 0;
   margin: 44px 0 0;
 }
 
 .way-item {
-  display: grid;
-  grid-template-columns: 88px minmax(0, 1fr);
-  gap: 16px;
-  padding-top: 19px;
+  display: block;
+  padding: 20px 0 21px;
   border-top: 1px solid var(--line);
 }
 
+.way-item:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
 .way-item dt {
-  margin: 0;
+  margin: 0 0 8px;
   color: var(--muted);
   font-family: var(--sans);
   font-size: 0.66rem;
   font-weight: 600;
+  letter-spacing: 0.12em;
   line-height: 1.55;
 }
 
@@ -511,22 +523,22 @@ figure {
 
 .gift-title {
   margin: 0;
-  font-size: clamp(1.08rem, 4.5vw, 1.28rem);
-  font-weight: 650;
+  font-size: clamp(1.06rem, 4.2vw, 1.22rem);
+  font-weight: 600;
   line-height: 1.8;
 }
 
 .gift-note {
-  margin: 10px 0 0;
+  margin: 8px 0 0;
   color: var(--ink-soft);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   line-height: 1.9;
 }
 
 .gift-groups {
   display: grid;
-  gap: 12px;
-  margin-top: 36px;
+  gap: 0;
+  margin-top: 38px;
 }
 
 .gift-group {
@@ -539,13 +551,14 @@ figure {
 }
 
 .gift-group summary {
-  min-height: 52px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   color: var(--ink);
-  font-size: 0.98rem;
-  font-weight: 650;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   line-height: 1.5;
   cursor: pointer;
   list-style: none;
@@ -565,7 +578,7 @@ figure {
   content: "+";
   color: var(--muted);
   font-family: var(--sans);
-  font-size: 1rem;
+  font-size: 0.88rem;
   font-weight: 400;
 }
 
@@ -576,15 +589,15 @@ figure {
 .gift-list {
   display: grid;
   gap: 0;
-  padding-bottom: 14px;
+  padding-bottom: 18px;
 }
 
 .gift-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 12px;
-  align-items: center;
-  padding: 14px 0;
+  gap: 8px 14px;
+  align-items: start;
+  padding: 18px 0;
   border-top: 1px solid rgba(41, 40, 35, 0.12);
 }
 
@@ -594,22 +607,25 @@ figure {
 
 .gift-person {
   min-width: 0;
-  display: grid;
-  gap: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  align-items: baseline;
 }
 
 .gift-role {
   color: var(--muted);
   font-family: var(--sans);
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 600;
+  letter-spacing: 0.08em;
   line-height: 1.4;
 }
 
 .gift-person strong {
   color: var(--ink);
-  font-size: 0.96rem;
-  font-weight: 650;
+  font-size: 0.93rem;
+  font-weight: 600;
   line-height: 1.45;
 }
 
@@ -618,7 +634,7 @@ figure {
   display: grid;
   gap: 3px;
   color: var(--ink-soft);
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   line-height: 1.62;
   word-break: break-all;
 }
@@ -630,10 +646,10 @@ figure {
 }
 
 .copy-button {
-  min-height: 34px;
-  padding: 7px 12px;
+  min-height: 26px;
+  padding: 2px 1px 3px;
   justify-self: end;
-  font-size: 0.73rem;
+  font-size: 0.7rem;
 }
 
 .closing {
@@ -741,11 +757,7 @@ figure {
 @media (max-width: 370px) {
   :root {
     --side: 22px;
-  }
-
-  .event-panel {
-    grid-template-columns: 74px minmax(0, 1fr);
-    gap: 18px;
+    --section-y: 72px;
   }
 
   .date-mark {
@@ -756,13 +768,8 @@ figure {
     font-size: 2rem;
   }
 
-  .way-item {
-    grid-template-columns: 76px minmax(0, 1fr);
-    gap: 12px;
-  }
-
-  .nav-buttons {
-    grid-template-columns: 1fr;
+  .nav-button {
+    font-size: 0.72rem;
   }
 }
 
