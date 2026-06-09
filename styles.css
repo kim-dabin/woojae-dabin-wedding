@@ -77,6 +77,14 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+body.is-dialog-locked {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+  overflow: hidden;
+}
+
 body::before {
   position: fixed;
   inset: 0;
@@ -402,7 +410,8 @@ figure {
 .nav-button:focus-visible,
 .copy-button:focus-visible,
 .photo-button:focus-visible,
-.dialog-close:focus-visible {
+.dialog-close:focus-visible,
+.dialog-nav:focus-visible {
   outline: 2px solid rgba(41, 40, 35, 0.72);
   outline-offset: 3px;
 }
@@ -655,17 +664,66 @@ figure {
   border: 1px solid rgba(41, 40, 35, 0.42);
   background: var(--paper-soft);
   color: var(--ink);
+  overflow: hidden;
 }
 
 .photo-dialog::backdrop {
   background: rgba(24, 23, 20, 0.58);
 }
 
+.photo-viewer {
+  position: relative;
+  touch-action: pan-y;
+}
+
+.dialog-figure {
+  margin: 0;
+}
+
 .photo-dialog img {
   display: block;
   width: 100%;
-  max-height: calc(100svh - 78px);
+  max-height: calc(100svh - 118px);
   object-fit: contain;
+}
+
+.dialog-counter {
+  min-height: 36px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  line-height: 36px;
+  text-align: center;
+}
+
+.dialog-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  width: 38px;
+  height: 54px;
+  padding: 0;
+  border: 1px solid rgba(41, 40, 35, 0.22);
+  background: rgba(250, 247, 240, 0.78);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 200;
+  line-height: 1;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.dialog-prev {
+  left: 0;
+  border-left: 0;
+}
+
+.dialog-next {
+  right: 0;
+  border-right: 0;
 }
 
 .dialog-close {

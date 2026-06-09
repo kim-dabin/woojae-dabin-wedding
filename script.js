@@ -142,6 +142,15 @@ const app = document.querySelector("#app");
 const dialog = document.querySelector("#photoDialog");
 const dialogImage = dialog.querySelector("img");
 const dialogClose = dialog.querySelector(".dialog-close");
+const photoViewer = dialog.querySelector(".photo-viewer");
+const dialogCounter = dialog.querySelector(".dialog-counter");
+const dialogPrev = dialog.querySelector("[data-photo-prev]");
+const dialogNext = dialog.querySelector("[data-photo-next]");
+let galleryPhotos = [];
+let activePhotoIndex = 0;
+let scrollLockY = 0;
+let swipeStartX = 0;
+let swipeStartY = 0;
 
 function escapeHtml(value) {
   return String(value)
@@ -251,12 +260,12 @@ function render() {
   app.querySelector("[data-calendar]").addEventListener("click", downloadCalendar);
 }
 
-function renderPhoto(photo) {
+function renderPhoto(photo, index) {
   const hasImage = Boolean(photo.src);
   const label = hasImage ? `${photo.alt} 크게 보기` : `${photo.alt} 자리`;
   return `
     <figure class="photo-frame">
-      <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
+      <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-index="${index}" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
         ${hasImage ? `<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="eager" decoding="async" />` : ""}
       </button>
     </figure>
@@ -360,7 +369,15 @@ function wireHeroImage() {
 }
 
 function wireGallery() {
-  app.querySelectorAll(".photo-button").forEach((button) => {
+  const buttons = Array.from(app.querySelectorAll(".photo-button"));
+  galleryPhotos = buttons
+    .filter((button) => button.dataset.photoSrc)
+    .map((button) => ({
+      src: button.dataset.photoSrc,
+      alt: button.dataset.photoAlt,
+    }));
+
+  buttons.forEach((button) => {
     const image = button.querySelector("img");
 
     if (!image) {
@@ -374,30 +391,101 @@ function wireGallery() {
     });
 
     button.addEventListener("click", () => {
-      openPhoto({
-        src: button.dataset.photoSrc,
-        alt: button.dataset.photoAlt,
-      });
+      openPhotoAt(Number(button.dataset.photoIndex));
     });
   });
 }
 
-function openPhoto(photo) {
-  dialogImage.src = photo.src;
-  dialogImage.alt = photo.alt;
-
-  if (typeof dialog.showModal === "function") {
-    dialog.showModal();
+function openPhotoAt(index) {
+  if (!galleryPhotos.length || typeof dialog.showModal !== "function") {
+    const photo = galleryPhotos[index];
+    if (photo) {
+      window.open(photo.src, "_blank", "noreferrer");
+    }
     return;
   }
 
-  window.open(photo.src, "_blank", "noreferrer");
+  lockPageScroll();
+  showPhotoAt(index);
+  dialog.showModal();
+}
+
+function showPhotoAt(index) {
+  const count = galleryPhotos.length;
+
+  if (!count) {
+    return;
+  }
+
+  activePhotoIndex = (index + count) % count;
+  const photo = galleryPhotos[activePhotoIndex];
+
+  dialogImage.src = photo.src;
+  dialogImage.alt = photo.alt;
+  dialogCounter.textContent = `${activePhotoIndex + 1} / ${count}`;
+}
+
+function showNextPhoto() {
+  showPhotoAt(activePhotoIndex + 1);
+}
+
+function showPrevPhoto() {
+  showPhotoAt(activePhotoIndex - 1);
 }
 
 function closePhoto() {
+  if (!dialog.open) {
+    return;
+  }
+
   dialog.close();
+}
+
+function clearPhotoDialog() {
   dialogImage.removeAttribute("src");
   dialogImage.alt = "";
+  dialogCounter.textContent = "";
+}
+
+function lockPageScroll() {
+  scrollLockY = window.scrollY;
+  document.body.style.top = `-${scrollLockY}px`;
+  document.body.classList.add("is-dialog-locked");
+}
+
+function unlockPageScroll() {
+  const restoreY = scrollLockY;
+  const restoreScroll = () => window.scrollTo(0, restoreY);
+
+  document.body.classList.remove("is-dialog-locked");
+  document.body.style.removeProperty("top");
+  restoreScroll();
+  window.requestAnimationFrame(() => {
+    restoreScroll();
+    window.requestAnimationFrame(restoreScroll);
+  });
+  window.setTimeout(restoreScroll, 80);
+}
+
+function startPhotoSwipe(clientX, clientY) {
+  swipeStartX = clientX;
+  swipeStartY = clientY;
+}
+
+function finishPhotoSwipe(clientX, clientY) {
+  const deltaX = clientX - swipeStartX;
+  const deltaY = clientY - swipeStartY;
+
+  if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+    return;
+  }
+
+  if (deltaX < 0) {
+    showNextPhoto();
+    return;
+  }
+
+  showPrevPhoto();
 }
 
 function wireGiftAccounts() {
@@ -475,6 +563,8 @@ function downloadCalendar() {
 }
 
 dialogClose.addEventListener("click", closePhoto);
+dialogPrev.addEventListener("click", showPrevPhoto);
+dialogNext.addEventListener("click", showNextPhoto);
 
 dialog.addEventListener("click", (event) => {
   if (event.target === dialog) {
@@ -482,10 +572,63 @@ dialog.addEventListener("click", (event) => {
   }
 });
 
-dialog.addEventListener("cancel", () => {
-  dialogImage.removeAttribute("src");
-  dialogImage.alt = "";
+dialog.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closePhoto();
 });
+
+dialog.addEventListener("close", () => {
+  clearPhotoDialog();
+  unlockPageScroll();
+});
+
+document.addEventListener("keydown", (event) => {
+  if (!dialog.open) {
+    return;
+  }
+
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    showPrevPhoto();
+  }
+
+  if (event.key === "ArrowRight") {
+    event.preventDefault();
+    showNextPhoto();
+  }
+});
+
+if ("PointerEvent" in window) {
+  photoViewer.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    startPhotoSwipe(event.clientX, event.clientY);
+  });
+
+  photoViewer.addEventListener("pointerup", (event) => {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    finishPhotoSwipe(event.clientX, event.clientY);
+  });
+} else {
+  photoViewer.addEventListener(
+    "touchstart",
+    (event) => {
+      const touch = event.changedTouches[0];
+      startPhotoSwipe(touch.clientX, touch.clientY);
+    },
+    { passive: true },
+  );
+
+  photoViewer.addEventListener("touchend", (event) => {
+    const touch = event.changedTouches[0];
+    finishPhotoSwipe(touch.clientX, touch.clientY);
+  });
+}
 
 window.WeddingInvitation = {
   data: WEDDING_DATA,
