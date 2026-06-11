@@ -171,6 +171,87 @@ function renderVerticalText(value) {
     .join("");
 }
 
+function parseLocalEventDate(event) {
+  const year = Number(event.year);
+  const month = Number(event.month) - 1;
+  const day = Number(event.day);
+
+  if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) {
+    return null;
+  }
+
+  return new Date(year, month, day);
+}
+
+function getDdayText(event) {
+  const eventDate = parseLocalEventDate(event);
+
+  if (!eventDate) {
+    return "";
+  }
+
+  const today = new Date();
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const oneDay = 24 * 60 * 60 * 1000;
+  const daysLeft = Math.ceil((eventDate.getTime() - todayDate.getTime()) / oneDay);
+
+  if (daysLeft > 0) {
+    return `${daysLeft}일 남았습니다.`;
+  }
+
+  if (daysLeft === 0) {
+    return "오늘입니다.";
+  }
+
+  return "함께해 주셔서 감사합니다.";
+}
+
+function renderCalendar(event) {
+  const eventDate = parseLocalEventDate(event);
+
+  if (!eventDate) {
+    return "";
+  }
+
+  const year = eventDate.getFullYear();
+  const month = eventDate.getMonth();
+  const selectedDay = eventDate.getDate();
+  const firstWeekday = new Date(year, month, 1).getDay();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const weekdayLabels = ["일", "월", "화", "수", "목", "금", "토"];
+  const cells = [];
+
+  for (let i = 0; i < firstWeekday; i += 1) {
+    cells.push(`<span class="calendar-day is-empty" aria-hidden="true"></span>`);
+  }
+
+  for (let day = 1; day <= lastDay; day += 1) {
+    const weekday = new Date(year, month, day).getDay();
+    const classNames = ["calendar-day"];
+
+    if (weekday === 0) {
+      classNames.push("is-sunday");
+    }
+
+    if (day === selectedDay) {
+      classNames.push("is-selected");
+    }
+
+    cells.push(`<span class="${classNames.join(" ")}"${day === selectedDay ? ' aria-current="date"' : ""}>${day}</span>`);
+  }
+
+  return `
+    <div class="calendar-block" aria-label="${year}년 ${month + 1}월 달력">
+      <div class="calendar-weekdays" aria-hidden="true">
+        ${weekdayLabels.map((label) => `<span>${label}</span>`).join("")}
+      </div>
+      <div class="calendar-grid">
+        ${cells.join("")}
+      </div>
+    </div>
+  `;
+}
+
 function render() {
   const data = WEDDING_DATA;
   const coupleNames = `${data.groom.name} · ${data.bride.name}`;
@@ -213,6 +294,8 @@ function render() {
 
     <section class="section gallery" aria-labelledby="galleryTitle">
       <p id="galleryTitle" class="section-kicker">GALLERY</p>
+      <h2 class="section-title">우리의 순간</h2>
+      <div class="section-rule-small" aria-hidden="true"></div>
       <div class="photo-strip${visiblePhotos.length === 1 ? " is-single" : ""}" aria-label="사진 갤러리">
         ${visiblePhotos.map(renderPhoto).join("")}
       </div>
@@ -230,6 +313,8 @@ function render() {
           <h2>${escapeHtml(data.event.dateLong)}</h2>
           <p><strong>${escapeHtml(data.event.venue)}</strong></p>
           <p>${escapeHtml(data.event.address)}</p>
+          ${renderCalendar(data.event)}
+          <p class="dday-line">${escapeHtml(data.groom.shortName)}와 ${escapeHtml(data.bride.shortName)}의 결혼식이 <strong>${escapeHtml(getDdayText(data.event))}</strong></p>
           <button class="line-button" type="button" data-calendar>캘린더에 추가</button>
         </div>
       </div>
@@ -237,6 +322,8 @@ function render() {
 
     <section class="section directions" aria-labelledby="directionsTitle">
       <p id="directionsTitle" class="section-kicker">LOCATION</p>
+      <h2 class="section-title">오시는 길</h2>
+      <div class="section-rule-small" aria-hidden="true"></div>
       ${renderMap()}
       <div class="nav-buttons" aria-label="지도 앱으로 보기">
         ${data.navigation.map((item) => `<a class="nav-button" href="${escapeHtml(item.href)}" target="_blank" rel="noreferrer">${escapeHtml(item.label)}</a>`).join("")}
@@ -263,8 +350,9 @@ function render() {
 function renderPhoto(photo, index) {
   const hasImage = Boolean(photo.src);
   const label = hasImage ? `${photo.alt} 크게 보기` : `${photo.alt} 자리`;
+  const featureClass = index === 0 ? " is-featured" : "";
   return `
-    <figure class="photo-frame">
+    <figure class="photo-frame${featureClass}">
       <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-index="${index}" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
         ${hasImage ? `<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="eager" decoding="async" />` : ""}
       </button>

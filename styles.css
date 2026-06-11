@@ -149,6 +149,15 @@ figure {
   overflow: hidden;
 }
 
+.hero::after {
+  position: absolute;
+  inset: 18px;
+  z-index: 1;
+  pointer-events: none;
+  content: "";
+  border: 1px solid rgba(41, 40, 35, 0.12);
+}
+
 .hero-photo {
   position: absolute;
   inset: 0;
@@ -171,7 +180,7 @@ figure {
 
 .hero-inner {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   display: grid;
   justify-items: center;
@@ -262,9 +271,25 @@ figure {
   font-weight: 650;
 }
 
+.section-title {
+  margin: -12px 0 0;
+  color: var(--ink);
+  font-size: clamp(1.02rem, 4vw, 1.18rem);
+  font-weight: 500;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.section-rule-small {
+  width: 24px;
+  height: 1px;
+  margin: 18px auto 38px;
+  background: var(--line-strong);
+}
+
 .photo-strip {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -277,17 +302,25 @@ figure {
   background: transparent;
 }
 
+.photo-frame.is-featured {
+  grid-column: 1 / -1;
+}
+
 .photo-button {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 1 / 1;
   padding: 0;
   border: 0;
   background: transparent;
   cursor: zoom-in;
   line-height: 0;
   overflow: hidden;
+}
+
+.photo-frame.is-featured .photo-button {
+  aspect-ratio: 4 / 5;
 }
 
 .photo-button img {
@@ -377,6 +410,65 @@ figure {
   font-size: 0.94rem;
   line-height: 1.95;
   word-break: keep-all;
+}
+
+.calendar-block {
+  max-width: 300px;
+  margin: 34px auto 0;
+  padding: 22px 0 20px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar-weekdays {
+  margin-bottom: 15px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.calendar-day {
+  min-height: 32px;
+  display: grid;
+  place-items: center;
+  color: var(--ink-soft);
+  font-family: var(--sans);
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.calendar-day.is-sunday {
+  color: rgba(137, 89, 80, 0.72);
+}
+
+.calendar-day.is-selected {
+  width: 31px;
+  height: 31px;
+  min-height: 31px;
+  justify-self: center;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper-soft);
+  font-weight: 600;
+}
+
+.dday-line {
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.dday-line strong {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .line-button,
