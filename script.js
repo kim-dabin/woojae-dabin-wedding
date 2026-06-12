@@ -92,17 +92,17 @@ const WEDDING_DATA = {
     {
       side: "신랑측",
       people: [
-        { role: "신랑", name: "김우재", phone: "" },
-        { role: "아버지", name: "김성대", phone: "" },
-        { role: "어머니", name: "류혜정", phone: "" },
+        { role: "신랑", name: "김우재", phone: "01042667637" },
+        { role: "아버지", name: "김성대", phone: "01052214979" },
+        { role: "어머니", name: "류혜정", phone: "01022917636" },
       ],
     },
     {
       side: "신부측",
       people: [
-        { role: "신부", name: "김다빈", phone: "" },
-        { role: "아버지", name: "김건호", phone: "" },
-        { role: "어머니", name: "김선이", phone: "" },
+        { role: "신부", name: "김다빈", phone: "01043001117" },
+        { role: "아버지", name: "김건호", phone: "01062376830" },
+        { role: "어머니", name: "김선이", phone: "01042246830" },
       ],
     },
   ],
