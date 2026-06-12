@@ -143,11 +143,6 @@ const WEDDING_DATA = {
       alt: "실내 주방에서 딸기를 든 김우재와 김다빈",
     },
     {
-      src: "assets/photos/photo-08.jpg",
-      suggestedFile: "assets/photos/photo-08.jpg",
-      alt: "실내 주방에서 함께 설거지하는 김우재와 김다빈",
-    },
-    {
       src: "assets/photos/photo-09.jpg",
       suggestedFile: "assets/photos/photo-09.jpg",
       alt: "실내 주방에서 접시와 귤을 든 김우재와 김다빈",
