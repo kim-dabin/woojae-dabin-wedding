@@ -4,4 +4,5 @@ server/*.sqlite3
 server/*.sqlite3-*
 server/data/
 server/logs/
+server/backups/
 __pycache__/

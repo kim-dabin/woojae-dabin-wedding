@@ -26,6 +26,8 @@ http://127.0.0.1:8787/admin
 
 - `PORT`: API 포트. 기본값은 `8787`.
 - `WEDDING_DB_PATH`: SQLite DB 파일 경로.
+- `WEDDING_BACKUP_DIR`: SQLite 백업 파일을 저장할 디렉터리.
+- `WEDDING_BACKUP_KEEP`: 보관할 백업 파일 개수. 현재 운영 기본값은 168개입니다.
 - `WEDDING_ADMIN_TOKEN`: 관리자 API와 `/admin` 화면에서 사용할 토큰.
 - `ALLOWED_ORIGINS`: CORS 허용 origin 목록. 쉼표로 구분합니다.
 
@@ -64,6 +66,21 @@ API 상태 확인:
 
 ```bash
 ssh mini 'curl http://127.0.0.1:8787/health'
+```
+
+DB 파일과 WAL 파일은 아래 경로에 남습니다. 서버 프로세스가 죽었다가 launchd로 다시 떠도 커밋된 데이터는 이 파일에 유지됩니다.
+
+```text
+~/woojae-dabin-wedding-server/data/wedding.sqlite3
+~/woojae-dabin-wedding-server/data/wedding.sqlite3-wal
+~/woojae-dabin-wedding-server/data/wedding.sqlite3-shm
+```
+
+백업은 `com.woojaedabin.wedding-backup` launchd 작업이 1시간마다 생성합니다.
+
+```bash
+ssh mini 'ls -lh ~/woojae-dabin-wedding-server/backups | tail'
+ssh mini 'launchctl print gui/$(id -u)/com.woojaedabin.wedding-backup | grep -E "state =|pid =|last exit code"'
 ```
 
 ngrok 터널 상태 확인:
