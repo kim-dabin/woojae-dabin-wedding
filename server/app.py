@@ -140,7 +140,8 @@ def format_public_row(row: sqlite3.Row) -> dict[str, Any]:
 
 
 def client_key(handler: BaseHTTPRequestHandler, path: str) -> tuple[str, str]:
-    ip = handler.headers.get("CF-Connecting-IP") or handler.client_address[0]
+    forwarded_for = handler.headers.get("X-Forwarded-For", "").split(",", 1)[0].strip()
+    ip = forwarded_for or handler.headers.get("CF-Connecting-IP") or handler.client_address[0]
     return (ip, path)
 
 
@@ -154,6 +155,18 @@ def rate_limited(handler: BaseHTTPRequestHandler, path: str, seconds: int = 4) -
 
     RECENT_POSTS[key] = now
     return False
+
+
+def is_local_host_header(value: str) -> bool:
+    host = value.strip().lower()
+    return (
+        host == "::1"
+        or host.startswith("[::1]")
+        or host == "localhost"
+        or host.startswith("localhost:")
+        or host == "127.0.0.1"
+        or host.startswith("127.0.0.1:")
+    )
 
 
 class WeddingApiHandler(BaseHTTPRequestHandler):
@@ -178,6 +191,8 @@ class WeddingApiHandler(BaseHTTPRequestHandler):
         )
         self.send_header("Access-Control-Max-Age", "86400")
         self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("Cache-Control", "no-store")
         super().end_headers()
 
     def do_OPTIONS(self) -> None:
@@ -196,19 +211,29 @@ class WeddingApiHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/admin/rsvp":
+            if not self.require_local_admin_host():
+                return
             if not self.require_admin():
                 return
             self.handle_admin_rsvp()
             return
 
         if parsed.path == "/api/admin/guestbook":
+            if not self.require_local_admin_host():
+                return
             if not self.require_admin():
                 return
             self.handle_admin_guestbook()
             return
 
-        if parsed.path in ("/", "/admin"):
+        if parsed.path == "/admin":
+            if not self.require_local_admin_host():
+                return
             self.send_admin_page()
+            return
+
+        if parsed.path == "/":
+            self.send_json({"ok": True, "service": "wedding-api", "time": now_iso()})
             return
 
         self.send_error_json(HTTPStatus.NOT_FOUND, "찾을 수 없는 경로입니다.")
@@ -217,10 +242,14 @@ class WeddingApiHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
 
         if parsed.path == "/api/rsvp":
+            if not self.require_allowed_write_origin():
+                return
             self.handle_rsvp_create()
             return
 
         if parsed.path == "/api/guestbook":
+            if not self.require_allowed_write_origin():
+                return
             self.handle_guestbook_create()
             return
 
@@ -230,6 +259,8 @@ class WeddingApiHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
 
         if parsed.path.startswith("/api/admin/guestbook/"):
+            if not self.require_local_admin_host():
+                return
             if not self.require_admin():
                 return
             self.handle_guestbook_update(parsed.path)
@@ -266,6 +297,30 @@ class WeddingApiHandler(BaseHTTPRequestHandler):
 
     def send_error_json(self, status: HTTPStatus, message: str) -> None:
         self.send_json({"ok": False, "error": message}, status)
+
+    def require_local_admin_host(self) -> bool:
+        forwarded_headers = (
+            "Forwarded",
+            "X-Forwarded-For",
+            "X-Forwarded-Host",
+            "X-Forwarded-Proto",
+            "X-Original-Host",
+        )
+
+        if is_local_host_header(self.headers.get("Host", "")) and not any(self.headers.get(name) for name in forwarded_headers):
+            return True
+
+        self.send_error_json(HTTPStatus.NOT_FOUND, "찾을 수 없는 경로입니다.")
+        return False
+
+    def require_allowed_write_origin(self) -> bool:
+        origin = self.headers.get("Origin", "").rstrip("/")
+
+        if origin in ALLOWED_ORIGINS:
+            return True
+
+        self.send_error_json(HTTPStatus.FORBIDDEN, "허용되지 않은 요청입니다.")
+        return False
 
     def require_admin(self) -> bool:
         if not ADMIN_TOKEN:

@@ -58,7 +58,7 @@ html {
   min-width: 320px;
   background: var(--paper);
   letter-spacing: 0;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {

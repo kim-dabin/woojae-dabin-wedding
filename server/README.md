@@ -77,3 +77,9 @@ ssh mini 'curl http://127.0.0.1:4040/api/tunnels'
 ```bash
 ssh mini 'cat ~/woojae-dabin-wedding-server/admin-token.txt'
 ```
+
+관리자 화면과 관리자 API는 ngrok 공개 주소에서는 열지 않고, 맥미니 로컬호스트에서만 접근하도록 제한합니다.
+
+```bash
+ssh mini 'open http://127.0.0.1:8787/admin'
+```
