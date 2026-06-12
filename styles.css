@@ -271,6 +271,14 @@ figure {
   font-weight: 650;
 }
 
+.action-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 42px;
+}
+
 .section-title {
   margin: -12px 0 0;
   color: var(--ink);
@@ -744,6 +752,126 @@ figure {
   font-size: 0.7rem;
 }
 
+.guestbook {
+  text-align: center;
+}
+
+.guestbook-form,
+.dialog-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.guestbook-form {
+  margin-top: 6px;
+  text-align: left;
+}
+
+.guestbook-form label,
+.dialog-panel label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.guestbook-form input,
+.guestbook-form textarea,
+.dialog-panel input[type="text"],
+.dialog-panel textarea,
+.dialog-panel select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 0.96rem;
+  line-height: 1.7;
+  outline: none;
+}
+
+.guestbook-form textarea,
+.dialog-panel textarea {
+  resize: vertical;
+}
+
+.guestbook-form input:focus,
+.guestbook-form textarea:focus,
+.dialog-panel input[type="text"]:focus,
+.dialog-panel textarea:focus,
+.dialog-panel select:focus {
+  border-color: var(--line-strong);
+}
+
+.form-note {
+  margin: -4px 0 0;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.75;
+  text-align: center;
+}
+
+.guestbook-list {
+  display: grid;
+  gap: 0;
+  margin-top: 42px;
+  text-align: left;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.guestbook-empty {
+  margin: 0;
+  padding: 24px 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.guestbook-message {
+  padding: 20px 0;
+  border-top: 1px solid var(--line);
+}
+
+.guestbook-message:first-child {
+  border-top: 0;
+}
+
+.guestbook-message header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.guestbook-message strong {
+  color: var(--ink);
+  font-size: 0.94rem;
+  font-weight: 600;
+}
+
+.guestbook-message time {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.66rem;
+}
+
+.guestbook-message p {
+  margin: 10px 0 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.85;
+  word-break: keep-all;
+}
+
 .closing {
   min-height: 68svh;
   display: grid;
@@ -846,6 +974,193 @@ figure {
   cursor: pointer;
 }
 
+.form-dialog {
+  width: min(calc(100vw - 34px), 430px);
+  max-height: calc(100svh - 34px);
+  padding: 0;
+  border: 1px solid rgba(41, 40, 35, 0.34);
+  background: var(--paper-soft);
+  color: var(--ink);
+  overflow: auto;
+}
+
+.form-dialog::backdrop {
+  background: rgba(24, 23, 20, 0.44);
+}
+
+.dialog-panel {
+  padding: 34px 28px 32px;
+  background-image: image-set(
+    url("assets/paper-ivory.webp") type("image/webp"),
+    url("assets/paper-ivory.jpg") type("image/jpeg")
+  );
+  background-size: 430px auto;
+}
+
+.dialog-text-close {
+  justify-self: end;
+  padding: 0 0 4px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+
+.dialog-title {
+  margin: -14px 0 0;
+  font-size: 1.08rem;
+  font-weight: 500;
+  line-height: 1.8;
+  text-align: center;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 112px;
+  gap: 18px;
+}
+
+.form-fieldset {
+  min-width: 0;
+  display: grid;
+  gap: 14px;
+  margin: 0;
+  padding: 16px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.form-fieldset legend {
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 16px;
+}
+
+.choice-grid.is-three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.choice-line {
+  display: inline-grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  justify-content: start;
+  color: var(--ink-soft);
+  font-family: var(--serif);
+  font-size: 0.9rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.choice-line input {
+  accent-color: var(--ink);
+}
+
+.choice-text {
+  min-width: 0;
+}
+
+.dialog-submit {
+  justify-self: center;
+  margin-top: 4px;
+}
+
+.contact-groups {
+  display: grid;
+  gap: 26px;
+}
+
+.contact-group h3 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.7;
+}
+
+.contact-list {
+  border-top: 1px solid var(--line);
+}
+
+.contact-row {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.contact-row p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.contact-row span {
+  color: var(--muted);
+  font-size: 0.84em;
+}
+
+.contact-row strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.contact-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 12px;
+}
+
+.contact-pending {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.7rem;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 20;
+  max-width: min(310px, calc(100vw - 42px));
+  padding: 11px 16px;
+  border: 1px solid rgba(41, 40, 35, 0.18);
+  background: rgba(250, 247, 240, 0.94);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
 @media (max-width: 370px) {
   :root {
     --side: 22px;
@@ -862,6 +1177,15 @@ figure {
 
   .nav-button {
     font-size: 0.72rem;
+  }
+
+  .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .choice-grid,
+  .choice-grid.is-three {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

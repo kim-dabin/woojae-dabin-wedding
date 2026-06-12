@@ -88,6 +88,24 @@ const WEDDING_DATA = {
       ],
     },
   ],
+  contactGroups: [
+    {
+      side: "신랑측",
+      people: [
+        { role: "신랑", name: "김우재", phone: "" },
+        { role: "아버지", name: "김성대", phone: "" },
+        { role: "어머니", name: "류혜정", phone: "" },
+      ],
+    },
+    {
+      side: "신부측",
+      people: [
+        { role: "신부", name: "김다빈", phone: "" },
+        { role: "아버지", name: "김건호", phone: "" },
+        { role: "어머니", name: "김선이", phone: "" },
+      ],
+    },
+  ],
   photos: [
     {
       src: "assets/photos/photo-01.jpg",
@@ -136,6 +154,9 @@ const WEDDING_DATA = {
     },
   ],
   closing: "귀한 걸음으로 함께해 주세요.",
+  api: {
+    baseUrl: "https://dullness-ignition-fifty.ngrok-free.dev",
+  },
 };
 
 const app = document.querySelector("#app");
@@ -146,6 +167,9 @@ const photoViewer = dialog.querySelector(".photo-viewer");
 const dialogCounter = dialog.querySelector(".dialog-counter");
 const dialogPrev = dialog.querySelector("[data-photo-prev]");
 const dialogNext = dialog.querySelector("[data-photo-next]");
+const RSVP_STORAGE_KEY = "woojae-dabin-rsvp-preview";
+const GUESTBOOK_STORAGE_KEY = "woojae-dabin-guestbook-preview";
+const API_TIMEOUT_MS = 7000;
 let galleryPhotos = [];
 let activePhotoIndex = 0;
 let scrollLockY = 0;
@@ -290,6 +314,7 @@ function render() {
         <p class="family-row"><strong>${escapeHtml(data.groom.parents)}</strong>의 아들 <strong>신랑 ${escapeHtml(data.groom.shortName)}</strong></p>
         <p class="family-row"><strong>${escapeHtml(data.bride.parents)}</strong>의 딸 <strong>신부 ${escapeHtml(data.bride.shortName)}</strong></p>
       </div>
+      ${renderActionStrip()}
     </section>
 
     <section class="section gallery" aria-labelledby="galleryTitle">
@@ -335,16 +360,33 @@ function render() {
 
     ${visibleGiftGroups.length ? renderGiftAccounts(visibleGiftGroups) : ""}
 
+    ${renderGuestbookSection()}
+
     <section class="section closing" aria-label="마무리 인사">
       <p class="closing-message">${escapeHtml(data.closing)}</p>
       <p class="closing-names">${escapeHtml(coupleNames)}</p>
     </section>
+
+    ${renderRsvpDialog()}
+    ${renderContactDialog(data.contactGroups)}
+    <div class="toast" role="status" aria-live="polite" data-toast></div>
   `;
 
   wireHeroImage();
   wireGallery();
   wireGiftAccounts();
+  wireInteractiveFeatures();
   app.querySelector("[data-calendar]").addEventListener("click", downloadCalendar);
+}
+
+function renderActionStrip() {
+  return `
+    <div class="action-strip" aria-label="추가 안내">
+      <button class="line-button" type="button" data-open-dialog="contactDialog">연락처</button>
+      <button class="line-button" type="button" data-open-dialog="rsvpDialog">참석 여부</button>
+      <a class="line-button" href="#guestbook">방명록</a>
+    </div>
+  `;
 }
 
 function renderPhoto(photo, index) {
@@ -412,6 +454,135 @@ function renderGiftPerson(person) {
         }
       </div>
       ${hasAccount ? `<button class="copy-button" type="button" data-copy="${escapeHtml(copyText)}">복사</button>` : ""}
+    </div>
+  `;
+}
+
+function renderGuestbookSection() {
+  return `
+    <section id="guestbook" class="section guestbook" aria-labelledby="guestbookTitle">
+      <p id="guestbookTitle" class="section-kicker">GUESTBOOK</p>
+      <h2 class="section-title">축하의 말</h2>
+      <div class="section-rule-small" aria-hidden="true"></div>
+      <form class="guestbook-form" data-guestbook-form>
+        <label>
+          <span>이름</span>
+          <input type="text" name="name" autocomplete="name" required maxlength="20" />
+        </label>
+        <label>
+          <span>메시지</span>
+          <textarea name="message" rows="4" required maxlength="160"></textarea>
+        </label>
+        <button class="line-button" type="submit">남기기</button>
+        <p class="form-note">${escapeHtml(renderStorageNote())}</p>
+      </form>
+      <div class="guestbook-list" data-guestbook-list></div>
+    </section>
+  `;
+}
+
+function renderRsvpDialog() {
+  return `
+    <dialog id="rsvpDialog" class="form-dialog" aria-labelledby="rsvpTitle">
+      <form class="dialog-panel" data-rsvp-form>
+        <button class="dialog-text-close" type="button" data-dialog-close="rsvpDialog">닫기</button>
+        <p class="section-kicker">RSVP</p>
+        <h2 id="rsvpTitle" class="dialog-title">참석 여부 전달</h2>
+        <div class="section-rule-small" aria-hidden="true"></div>
+
+        <fieldset class="form-fieldset">
+          <legend>구분</legend>
+          <div class="choice-grid">
+            <label class="choice-line"><input type="radio" name="side" value="신랑측" required /><span class="choice-text">신랑측</span></label>
+            <label class="choice-line"><input type="radio" name="side" value="신부측" /><span class="choice-text">신부측</span></label>
+          </div>
+        </fieldset>
+
+        <div class="form-grid">
+          <label>
+            <span>성함</span>
+            <input type="text" name="name" autocomplete="name" required maxlength="20" />
+          </label>
+          <label>
+            <span>인원</span>
+            <select name="count">
+              <option value="1">1명</option>
+              <option value="2">2명</option>
+              <option value="3">3명</option>
+              <option value="4명 이상">4명 이상</option>
+            </select>
+          </label>
+        </div>
+
+        <fieldset class="form-fieldset">
+          <legend>참석</legend>
+          <div class="choice-grid">
+            <label class="choice-line"><input type="radio" name="attend" value="참석" required /><span class="choice-text">참석</span></label>
+            <label class="choice-line"><input type="radio" name="attend" value="불참" /><span class="choice-text">불참</span></label>
+          </div>
+        </fieldset>
+
+        <fieldset class="form-fieldset">
+          <legend>식사</legend>
+          <div class="choice-grid is-three">
+            <label class="choice-line"><input type="radio" name="meal" value="식사" required /><span class="choice-text">식사</span></label>
+            <label class="choice-line"><input type="radio" name="meal" value="식사 안 함" /><span class="choice-text">식사 안 함</span></label>
+            <label class="choice-line"><input type="radio" name="meal" value="미정" /><span class="choice-text">미정</span></label>
+          </div>
+        </fieldset>
+
+        <label>
+          <span>전하실 말</span>
+          <textarea name="message" rows="3" maxlength="120"></textarea>
+        </label>
+
+        <button class="line-button dialog-submit" type="submit">저장하기</button>
+        <p class="form-note">${escapeHtml(renderStorageNote())}</p>
+      </form>
+    </dialog>
+  `;
+}
+
+function renderContactDialog(groups) {
+  return `
+    <dialog id="contactDialog" class="form-dialog" aria-labelledby="contactTitle">
+      <div class="dialog-panel">
+        <button class="dialog-text-close" type="button" data-dialog-close="contactDialog">닫기</button>
+        <p class="section-kicker">CONTACT</p>
+        <h2 id="contactTitle" class="dialog-title">축하 연락처</h2>
+        <div class="section-rule-small" aria-hidden="true"></div>
+        <div class="contact-groups">
+          ${groups.map(renderContactGroup).join("")}
+        </div>
+      </div>
+    </dialog>
+  `;
+}
+
+function renderContactGroup(group) {
+  return `
+    <section class="contact-group">
+      <h3>${escapeHtml(group.side)}</h3>
+      <div class="contact-list">
+        ${group.people.map(renderContactPerson).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderContactPerson(person) {
+  const phone = person.phone.trim();
+  return `
+    <div class="contact-row">
+      <p><span>${escapeHtml(person.role)}</span> <strong>${escapeHtml(person.name)}</strong></p>
+      ${
+        phone
+          ? `<div class="contact-actions">
+        <a class="line-button" href="tel:${escapeHtml(phone)}">전화</a>
+        <a class="line-button" href="sms:${escapeHtml(phone)}">문자</a>
+      </div>`
+          : `<span class="contact-pending">준비 중</span>`
+      }
     </div>
   `;
 }
@@ -590,6 +761,314 @@ function wireGiftAccounts() {
       }, 1400);
     });
   });
+}
+
+function wireInteractiveFeatures() {
+  app.querySelectorAll("[data-open-dialog]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openManagedDialog(button.dataset.openDialog);
+    });
+  });
+
+  app.querySelectorAll("[data-dialog-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeManagedDialog(button.dataset.dialogClose);
+    });
+  });
+
+  app.querySelectorAll(".form-dialog").forEach((managedDialog) => {
+    managedDialog.addEventListener("click", (event) => {
+      if (event.target === managedDialog) {
+        managedDialog.close();
+      }
+    });
+
+    managedDialog.addEventListener("cancel", (event) => {
+      event.preventDefault();
+      managedDialog.close();
+    });
+
+    managedDialog.addEventListener("close", () => {
+      if (document.body.classList.contains("is-dialog-locked")) {
+        unlockPageScroll();
+      }
+    });
+  });
+
+  const rsvpForm = app.querySelector("[data-rsvp-form]");
+  const guestbookForm = app.querySelector("[data-guestbook-form]");
+
+  if (rsvpForm) {
+    rsvpForm.addEventListener("submit", handleRsvpSubmit);
+  }
+
+  if (guestbookForm) {
+    guestbookForm.addEventListener("submit", handleGuestbookSubmit);
+    renderGuestbookMessages();
+  }
+}
+
+function openManagedDialog(id) {
+  const managedDialog = document.getElementById(id);
+
+  if (!managedDialog || typeof managedDialog.showModal !== "function") {
+    return;
+  }
+
+  lockPageScroll();
+  managedDialog.showModal();
+}
+
+function closeManagedDialog(id) {
+  const managedDialog = document.getElementById(id);
+
+  if (managedDialog?.open) {
+    managedDialog.close();
+  }
+}
+
+function readStoredList(key) {
+  try {
+    const stored = window.localStorage.getItem(key);
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredList(key, value) {
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    showToast("저장 공간을 사용할 수 없습니다.");
+  }
+}
+
+function getApiBaseUrl() {
+  const localHostnames = new Set(["127.0.0.1", "localhost"]);
+  const localOverride = localHostnames.has(window.location.hostname)
+    ? new URLSearchParams(window.location.search).get("apiBaseUrl")
+    : "";
+
+  return String(localOverride || WEDDING_DATA.api?.baseUrl || "")
+    .trim()
+    .replace(/\/+$/, "");
+}
+
+function hasRemoteApi() {
+  return Boolean(getApiBaseUrl());
+}
+
+function renderStorageNote() {
+  return hasRemoteApi()
+    ? "제출 내용은 신랑 신부에게 전달됩니다."
+    : "제출 내용은 서버 연결 전까지 이 기기에만 보관됩니다.";
+}
+
+function formatLocalDate(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}.${month}.${day}`;
+}
+
+function formatDisplayDate(value) {
+  const date = value ? new Date(value) : new Date();
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value || "");
+  }
+
+  return formatLocalDate(date);
+}
+
+async function requestJson(path, options = {}) {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+  const headers = {
+    "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "true",
+    ...(options.headers || {}),
+  };
+
+  try {
+    const response = await fetch(`${getApiBaseUrl()}${path}`, {
+      ...options,
+      headers,
+      signal: controller.signal,
+    });
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok || data.ok === false) {
+      throw new Error(data.error || "저장에 실패했습니다.");
+    }
+
+    return data;
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("서버 응답이 지연되고 있습니다.");
+    }
+
+    throw error;
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+function setFormPending(form, pending) {
+  form.querySelectorAll("button, input, textarea, select").forEach((field) => {
+    field.disabled = pending;
+  });
+}
+
+async function handleRsvpSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const item = {
+    id: Date.now(),
+    side: formData.get("side"),
+    name: formData.get("name"),
+    count: formData.get("count"),
+    attend: formData.get("attend"),
+    meal: formData.get("meal"),
+    message: formData.get("message"),
+    date: formatLocalDate(new Date()),
+  };
+
+  setFormPending(form, true);
+
+  try {
+    if (hasRemoteApi()) {
+      await requestJson("/api/rsvp", {
+        method: "POST",
+        body: JSON.stringify(item),
+      });
+      showToast("참석 안내가 전달되었습니다.");
+    } else {
+      const entries = readStoredList(RSVP_STORAGE_KEY);
+      entries.unshift(item);
+      writeStoredList(RSVP_STORAGE_KEY, entries.slice(0, 20));
+      showToast("참석 안내가 임시 저장되었습니다.");
+    }
+
+    form.reset();
+    closeManagedDialog("rsvpDialog");
+  } catch (error) {
+    showToast(error.message || "저장에 실패했습니다.");
+  } finally {
+    setFormPending(form, false);
+  }
+}
+
+async function handleGuestbookSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const formData = new FormData(form);
+  const name = String(formData.get("name") || "").trim();
+  const message = String(formData.get("message") || "").trim();
+
+  if (!name || !message) {
+    return;
+  }
+
+  setFormPending(form, true);
+
+  try {
+    if (hasRemoteApi()) {
+      await requestJson("/api/guestbook", {
+        method: "POST",
+        body: JSON.stringify({ name, message }),
+      });
+      showToast("축하 메시지가 전달되었습니다.");
+    } else {
+      const messages = readStoredList(GUESTBOOK_STORAGE_KEY);
+      messages.unshift({
+        id: Date.now(),
+        name,
+        message,
+        date: formatLocalDate(new Date()),
+      });
+      writeStoredList(GUESTBOOK_STORAGE_KEY, messages.slice(0, 12));
+      showToast("축하 메시지가 임시 저장되었습니다.");
+    }
+
+    form.reset();
+    await renderGuestbookMessages();
+  } catch (error) {
+    showToast(error.message || "저장에 실패했습니다.");
+  } finally {
+    setFormPending(form, false);
+  }
+}
+
+async function loadGuestbookMessages() {
+  if (!hasRemoteApi()) {
+    return readStoredList(GUESTBOOK_STORAGE_KEY);
+  }
+
+  const data = await requestJson("/api/guestbook");
+  const messages = Array.isArray(data.messages) ? data.messages : [];
+  return messages.map((message) => ({
+    id: message.id,
+    name: message.name,
+    message: message.message,
+    date: formatDisplayDate(message.createdAt),
+  }));
+}
+
+async function renderGuestbookMessages() {
+  const list = app.querySelector("[data-guestbook-list]");
+
+  if (!list) {
+    return;
+  }
+
+  list.innerHTML = `<p class="guestbook-empty">축하 메시지를 불러오는 중입니다.</p>`;
+
+  let messages = [];
+
+  try {
+    messages = await loadGuestbookMessages();
+  } catch (error) {
+    list.innerHTML = `<p class="guestbook-empty">${escapeHtml(error.message || "방명록을 불러오지 못했습니다.")}</p>`;
+    return;
+  }
+
+  if (!messages.length) {
+    list.innerHTML = `<p class="guestbook-empty">아직 남겨진 축하 메시지가 없습니다.</p>`;
+    return;
+  }
+
+  list.innerHTML = messages
+    .map(
+      (message) => `
+        <article class="guestbook-message">
+          <header>
+            <strong>${escapeHtml(message.name)}</strong>
+            <time>${escapeHtml(message.date)}</time>
+          </header>
+          <p>${escapeHtml(message.message)}</p>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function showToast(message) {
+  const toast = app.querySelector("[data-toast]");
+
+  if (!toast) {
+    return;
+  }
+
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, 1800);
 }
 
 async function copyText(value) {

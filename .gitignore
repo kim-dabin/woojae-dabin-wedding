@@ -1,1 +1,7 @@
 assets/photos/IMG_*.JPG
+server/.env
+server/*.sqlite3
+server/*.sqlite3-*
+server/data/
+server/logs/
+__pycache__/
