@@ -147,6 +147,11 @@ const WEDDING_DATA = {
       suggestedFile: "assets/photos/photo-09.jpg",
       alt: "실내 주방에서 접시와 귤을 든 김우재와 김다빈",
     },
+    {
+      src: "assets/photos/photo-10.jpg",
+      suggestedFile: "assets/photos/photo-10.jpg",
+      alt: "거울에 비친 김우재와 김다빈의 웨딩 촬영 준비 순간",
+    },
   ],
   closing: "귀한 걸음으로 함께해 주세요.",
   api: {
