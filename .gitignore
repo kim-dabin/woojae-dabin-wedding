@@ -1,4 +1,5 @@
 assets/photos/IMG_*.JPG
+assets/photos/shareImage_*.jpg
 server/.env
 server/*.sqlite3
 server/*.sqlite3-*

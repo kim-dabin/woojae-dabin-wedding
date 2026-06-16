@@ -157,6 +157,11 @@ const WEDDING_DATA = {
       suggestedFile: "assets/photos/photo-11.jpg",
       alt: "책장 앞에서 정장을 입고 책을 든 김우재",
     },
+    {
+      src: "assets/photos/photo-12.jpg",
+      suggestedFile: "assets/photos/photo-12.jpg",
+      alt: "책장 앞에서 웨딩드레스를 입고 부케를 든 김다빈",
+    },
   ],
   closing: "귀한 걸음으로 함께해 주세요.",
   api: {
