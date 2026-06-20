@@ -407,9 +407,11 @@ function renderPhoto(photo, index) {
   const hasImage = Boolean(photo.src);
   const label = hasImage ? `${photo.alt} 크게 보기` : `${photo.alt} 자리`;
   const featureClass = index === 0 ? " is-featured" : "";
+  const dialogAttrs = hasImage ? ` aria-controls="photoDialog" aria-haspopup="dialog"` : "";
+
   return `
     <figure class="photo-frame${featureClass}">
-      <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-index="${index}" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${hasImage ? "" : " disabled"}>
+      <button class="photo-button${hasImage ? "" : " is-empty"}" type="button" data-photo-index="${index}" data-photo-src="${escapeHtml(photo.src)}" data-photo-alt="${escapeHtml(photo.alt)}" aria-label="${escapeHtml(label)}"${dialogAttrs}${hasImage ? "" : " disabled"}>
         ${hasImage ? `<img src="${escapeHtml(photo.src)}" alt="${escapeHtml(photo.alt)}" loading="eager" decoding="async" />` : ""}
       </button>
     </figure>
@@ -633,7 +635,9 @@ function wireHeroImage() {
 }
 
 function wireGallery() {
+  const strip = app.querySelector(".photo-strip");
   const buttons = Array.from(app.querySelectorAll(".photo-button"));
+
   galleryPhotos = buttons
     .filter((button) => button.dataset.photoSrc)
     .map((button) => ({
@@ -653,16 +657,39 @@ function wireGallery() {
       button.disabled = true;
       image.remove();
     });
+  });
 
-    button.addEventListener("click", () => {
-      openPhotoAt(Number(button.dataset.photoIndex));
-    });
+  if (!strip) {
+    return;
+  }
+
+  strip.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) {
+      return;
+    }
+
+    const button = event.target.closest(".photo-button");
+
+    if (!button || !strip.contains(button) || button.disabled || !button.dataset.photoSrc) {
+      return;
+    }
+
+    const photoIndex = Number(button.dataset.photoIndex);
+
+    if (!Number.isFinite(photoIndex)) {
+      return;
+    }
+
+    openPhotoAt(photoIndex);
   });
 }
 
 function openPhotoAt(index) {
+  const safeIndex = Number.isFinite(index) ? Math.trunc(index) : 0;
+
   if (!galleryPhotos.length || typeof dialog.showModal !== "function") {
-    const photo = galleryPhotos[index];
+    const photo = galleryPhotos[safeIndex] || galleryPhotos[0];
+
     if (photo) {
       window.open(photo.src, "_blank", "noreferrer");
     }
@@ -670,7 +697,7 @@ function openPhotoAt(index) {
   }
 
   lockPageScroll();
-  showPhotoAt(index);
+  showPhotoAt(safeIndex);
   dialog.showModal();
 }
 
@@ -681,7 +708,8 @@ function showPhotoAt(index) {
     return;
   }
 
-  activePhotoIndex = (index + count) % count;
+  const safeIndex = Number.isFinite(index) ? Math.trunc(index) : 0;
+  activePhotoIndex = ((safeIndex % count) + count) % count;
   const photo = galleryPhotos[activePhotoIndex];
 
   dialogImage.src = photo.src;
