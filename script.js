@@ -24,6 +24,10 @@ const WEDDING_DATA = {
     address: "서울 광진구 능동로 110 스타시티영존 5층",
     addressDetail: "서울 광진구 능동로 110 스타시티영존 5층 (화양동 4-20)",
   },
+  mapImage: {
+    src: "assets/starcity-map-large-text.png",
+    alt: "건대입구역 2번 출구와 3번 출구, 건국대학교 병원, 주차장 입구, 스타시티아트웨딩홀 위치를 표시한 약도",
+  },
   invitation: [
     "초록빛이 찬란하게 빛나는\n8월의 어느 날,\n저희 두 사람은 서로에게\n그늘과 나무가 되려 합니다.",
     "한여름의 푸르름처럼\n변함없는 마음으로\n서로의 계절을 다채롭게 채워가며,\n언제나 옆에서 아끼고 사랑하며\n살아가겠습니다.",
@@ -598,24 +602,11 @@ function renderContactPerson(person) {
 }
 
 function renderMap() {
+  const map = WEDDING_DATA.mapImage;
+
   return `
     <div class="map-panel" aria-label="건대 스타시티아트홀 약도">
-      <svg viewBox="0 0 320 210" role="img" aria-labelledby="mapTitle mapDesc">
-        <title id="mapTitle">건대 스타시티아트홀 미니 약도</title>
-        <desc id="mapDesc">건대입구역과 능동로 주변을 단색 선으로 표현한 약도입니다.</desc>
-        <path class="map-line soft" d="M28 48 H292" />
-        <path class="map-line" d="M48 178 C84 132 108 96 140 76 C184 48 230 70 278 38" />
-        <path class="map-line soft" d="M74 34 C92 80 104 118 118 176" />
-        <path class="map-line soft" d="M214 36 C206 82 202 126 214 178" />
-        <circle class="map-dot" cx="116" cy="98" r="3.6" />
-        <circle class="map-dot" cx="214" cy="78" r="3.6" />
-        <line class="map-line" x1="214" y1="78" x2="222" y2="99" />
-        <text class="map-title" x="224" y="105">스타시티아트홀</text>
-        <text class="map-label" x="86" y="92">건대입구역</text>
-        <text class="map-small" x="88" y="110">2번 · 3번 출구</text>
-        <text class="map-label" x="33" y="42">능동로</text>
-        <text class="map-small" x="218" y="174">건국대학교병원</text>
-      </svg>
+      <img class="map-image" src="${escapeHtml(map.src)}" alt="${escapeHtml(map.alt)}" loading="lazy" decoding="async" />
     </div>
   `;
 }

@@ -519,40 +519,13 @@ figure {
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background: var(--wash);
+  overflow: hidden;
 }
 
-.map-panel svg {
+.map-image {
   width: 100%;
   height: auto;
   display: block;
-}
-
-.map-line {
-  fill: none;
-  stroke: rgba(41, 40, 35, 0.54);
-  stroke-width: 1;
-}
-
-.map-line.soft {
-  stroke: rgba(41, 40, 35, 0.28);
-}
-
-.map-dot {
-  fill: var(--ink);
-}
-
-.map-label,
-.map-small {
-  fill: var(--ink-soft);
-  font-family: var(--sans);
-  font-size: 9px;
-}
-
-.map-title {
-  fill: var(--ink);
-  font-family: var(--serif);
-  font-size: 12px;
-  font-weight: 600;
 }
 
 .nav-buttons {
