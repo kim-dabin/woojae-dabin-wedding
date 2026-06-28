@@ -534,6 +534,7 @@ figure {
 .line-button:focus-visible,
 .nav-button:focus-visible,
 .copy-button:focus-visible,
+.map-panel:focus-visible,
 .photo-button:focus-visible,
 .dialog-close:focus-visible,
 .dialog-nav:focus-visible {
@@ -542,11 +543,15 @@ figure {
 }
 
 .map-panel {
+  width: 100%;
   margin-top: 4px;
+  padding: 0;
+  border: 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background: var(--wash);
   overflow: hidden;
+  cursor: zoom-in;
 }
 
 .map-image {
@@ -949,6 +954,10 @@ figure {
 
 .photo-dialog.is-zoomed .dialog-nav {
   opacity: 0.34;
+}
+
+.photo-dialog.is-single-photo .dialog-nav {
+  display: none;
 }
 
 .dialog-counter {

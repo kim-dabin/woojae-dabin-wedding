@@ -25,7 +25,7 @@ const WEDDING_DATA = {
     addressDetail: "서울 광진구 능동로 110 스타시티영존 5층 (화양동 4-20)",
   },
   mapImage: {
-    src: "assets/starcity-map-large-text.png",
+    src: "assets/starcity-map-large-text.png?v=20260628-map-fix1",
     alt: "건대입구역 2번 출구와 3번 출구, 건국대학교 병원, 주차장 입구, 스타시티아트웨딩홀 위치를 표시한 약도",
   },
   invitation: [
@@ -266,6 +266,7 @@ const RSVP_STORAGE_KEY = "woojae-dabin-rsvp-preview";
 const GUESTBOOK_STORAGE_KEY = "woojae-dabin-guestbook-preview";
 const API_TIMEOUT_MS = 7000;
 let galleryPhotos = [];
+let dialogPhotos = [];
 let activePhotoIndex = 0;
 let scrollLockY = 0;
 let swipeStartX = 0;
@@ -489,6 +490,7 @@ function render() {
 
   wireHeroImage();
   wireGallery();
+  wireMap();
   wireGiftAccounts();
   wireInteractiveFeatures();
   app.querySelector("[data-calendar]").addEventListener("click", downloadCalendar);
@@ -708,9 +710,9 @@ function renderMap() {
   const map = WEDDING_DATA.mapImage;
 
   return `
-    <div class="map-panel" aria-label="건대 스타시티아트홀 약도">
+    <button class="map-panel" type="button" data-map-image aria-label="건대 스타시티아트홀 약도 크게 보기">
       <img class="map-image" src="${escapeHtml(map.src)}" alt="${escapeHtml(map.alt)}" loading="lazy" decoding="async" />
-    </div>
+    </button>
   `;
 }
 
@@ -785,11 +787,54 @@ function wireGallery() {
   });
 }
 
+function wireMap() {
+  const mapButton = app.querySelector("[data-map-image]");
+
+  if (!mapButton) {
+    return;
+  }
+
+  const image = mapButton.querySelector("img");
+
+  if (image) {
+    image.addEventListener("error", () => {
+      mapButton.disabled = true;
+      mapButton.classList.add("is-empty");
+    });
+  }
+
+  mapButton.addEventListener("click", openMapImage);
+}
+
 function openPhotoAt(index) {
+  openPhotoSet(galleryPhotos, index);
+}
+
+function openMapImage() {
+  const map = WEDDING_DATA.mapImage;
+
+  if (!map.src) {
+    return;
+  }
+
+  openPhotoSet(
+    [
+      {
+        src: map.src,
+        alt: map.alt,
+        counter: "약도",
+      },
+    ],
+    0,
+  );
+}
+
+function openPhotoSet(photos, index) {
+  const validPhotos = photos.filter((photo) => photo.src);
   const safeIndex = Number.isFinite(index) ? Math.trunc(index) : 0;
 
-  if (!galleryPhotos.length || typeof dialog.showModal !== "function") {
-    const photo = galleryPhotos[safeIndex] || galleryPhotos[0];
+  if (!validPhotos.length || typeof dialog.showModal !== "function") {
+    const photo = validPhotos[safeIndex] || validPhotos[0];
 
     if (photo) {
       window.open(photo.src, "_blank", "noreferrer");
@@ -797,13 +842,14 @@ function openPhotoAt(index) {
     return;
   }
 
+  dialogPhotos = validPhotos;
   lockPageScroll();
   showPhotoAt(safeIndex);
   dialog.showModal();
 }
 
 function showPhotoAt(index) {
-  const count = galleryPhotos.length;
+  const count = dialogPhotos.length;
 
   if (!count) {
     return;
@@ -812,11 +858,12 @@ function showPhotoAt(index) {
   resetPhotoZoom();
   const safeIndex = Number.isFinite(index) ? Math.trunc(index) : 0;
   activePhotoIndex = ((safeIndex % count) + count) % count;
-  const photo = galleryPhotos[activePhotoIndex];
+  const photo = dialogPhotos[activePhotoIndex];
 
   dialogImage.src = photo.src;
   dialogImage.alt = photo.alt;
-  dialogCounter.textContent = `${activePhotoIndex + 1} / ${count}`;
+  dialogCounter.textContent = photo.counter || `${activePhotoIndex + 1} / ${count}`;
+  dialog.classList.toggle("is-single-photo", count < 2);
 }
 
 function showNextPhoto() {
@@ -837,6 +884,8 @@ function closePhoto() {
 
 function clearPhotoDialog() {
   resetPhotoZoom();
+  dialogPhotos = [];
+  dialog.classList.remove("is-single-photo");
   dialogImage.removeAttribute("src");
   dialogImage.alt = "";
   dialogCounter.textContent = "";
