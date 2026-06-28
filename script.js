@@ -117,11 +117,6 @@ const WEDDING_DATA = {
       alt: "벚꽃 아래 선글라스를 든 김우재와 김다빈",
     },
     {
-      src: "assets/photos/photo-02.jpg",
-      suggestedFile: "assets/photos/photo-02.jpg",
-      alt: "풍년떡 방앗간 앞에서 숫자 풍선을 든 김우재와 김다빈",
-    },
-    {
       src: "assets/photos/photo-03.jpg",
       suggestedFile: "assets/photos/photo-03.jpg",
       alt: "풍년떡 방앗간 앞에서 포즈를 취한 김우재와 김다빈",
