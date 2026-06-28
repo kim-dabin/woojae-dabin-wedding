@@ -144,7 +144,7 @@ const WEDDING_DATA = {
     {
       src: "assets/photos/photo-07.jpg",
       suggestedFile: "assets/photos/photo-07.jpg",
-      alt: "실내 주방에서 딸기를 든 김우재와 김다빈",
+      alt: "실내 주방에서 딸기를 나눠 먹는 김우재와 김다빈",
     },
     {
       src: "assets/photos/photo-09.jpg",
@@ -165,6 +165,91 @@ const WEDDING_DATA = {
       src: "assets/photos/photo-12.jpg",
       suggestedFile: "assets/photos/photo-12.jpg",
       alt: "책장 앞에서 웨딩드레스를 입고 부케를 든 김다빈",
+    },
+    {
+      src: "assets/photos/photo-13.jpg",
+      suggestedFile: "assets/photos/photo-13.jpg",
+      alt: "벚꽃길에서 손을 잡고 걷는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-14.jpg",
+      suggestedFile: "assets/photos/photo-14.jpg",
+      alt: "벚꽃길에서 아이스크림을 들고 걷는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-15.jpg",
+      suggestedFile: "assets/photos/photo-15.jpg",
+      alt: "벚꽃 아래에서 손을 잡고 선 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-16.jpg",
+      suggestedFile: "assets/photos/photo-16.jpg",
+      alt: "벚꽃 아래에서 아이스크림을 나눠 먹는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-17.jpg",
+      suggestedFile: "assets/photos/photo-17.jpg",
+      alt: "침대 위에서 베개 장난을 치는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-18.jpg",
+      suggestedFile: "assets/photos/photo-18.jpg",
+      alt: "돗자리 위에서 과일을 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-19.jpg",
+      suggestedFile: "assets/photos/photo-19.jpg",
+      alt: "주방에서 딸기 접시를 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-20.jpg",
+      suggestedFile: "assets/photos/photo-20.jpg",
+      alt: "테이블 너머 딸기를 바라보는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-21.jpg",
+      suggestedFile: "assets/photos/photo-21.jpg",
+      alt: "돗자리 위에서 부케를 들고 마주 보는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-22.jpg",
+      suggestedFile: "assets/photos/photo-22.jpg",
+      alt: "창가 테이블에 나란히 앉은 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-23.jpg",
+      suggestedFile: "assets/photos/photo-23.jpg",
+      alt: "꽃다발을 들고 장난스러운 표정을 짓는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-24.jpg",
+      suggestedFile: "assets/photos/photo-24.jpg",
+      alt: "파란 셔터 앞에서 손을 내민 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-25.jpg",
+      suggestedFile: "assets/photos/photo-25.jpg",
+      alt: "나무 아래 돗자리에서 과일을 나누는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-26.jpg",
+      suggestedFile: "assets/photos/photo-26.jpg",
+      alt: "오래된 사진관 앞 횡단보도를 걷는 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-27.jpg",
+      suggestedFile: "assets/photos/photo-27.jpg",
+      alt: "초록 나무 아래 부케를 든 김다빈",
+    },
+    {
+      src: "assets/photos/photo-28.jpg",
+      suggestedFile: "assets/photos/photo-28.jpg",
+      alt: "오래된 사진관 앞에 나란히 선 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-29.jpg",
+      suggestedFile: "assets/photos/photo-29.jpg",
+      alt: "초록 나무 아래 손을 잡고 선 김우재와 김다빈",
     },
   ],
   closing: "귀한 걸음으로 함께해 주세요.",
