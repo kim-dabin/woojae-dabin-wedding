@@ -537,6 +537,7 @@ figure {
 .map-panel:focus-visible,
 .photo-button:focus-visible,
 .dialog-close:focus-visible,
+.dialog-reset:focus-visible,
 .dialog-nav:focus-visible {
   outline: 2px solid rgba(41, 40, 35, 0.72);
   outline-offset: 3px;
@@ -906,6 +907,8 @@ figure {
   background: var(--paper-soft);
   color: var(--ink);
   overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 .photo-dialog::backdrop {
@@ -921,9 +924,13 @@ figure {
 }
 
 .dialog-image-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   touch-action: none;
   cursor: zoom-in;
+  overscroll-behavior: contain;
 }
 
 .photo-dialog.is-zoomed .dialog-image-stage {
@@ -958,6 +965,27 @@ figure {
 
 .photo-dialog.is-single-photo .dialog-nav {
   display: none;
+}
+
+.dialog-reset {
+  position: absolute;
+  right: 12px;
+  bottom: 48px;
+  z-index: 3;
+  display: none;
+  min-height: 32px;
+  padding: 0 12px 1px;
+  border: 1px solid rgba(41, 40, 35, 0.24);
+  background: rgba(250, 247, 240, 0.86);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+}
+
+.photo-dialog.is-zoomed .dialog-reset {
+  display: block;
 }
 
 .dialog-counter {

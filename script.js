@@ -262,6 +262,7 @@ const photoViewer = dialog.querySelector(".photo-viewer");
 const dialogCounter = dialog.querySelector(".dialog-counter");
 const dialogPrev = dialog.querySelector("[data-photo-prev]");
 const dialogNext = dialog.querySelector("[data-photo-next]");
+const dialogReset = dialog.querySelector("[data-photo-reset]");
 const RSVP_STORAGE_KEY = "woojae-dabin-rsvp-preview";
 const GUESTBOOK_STORAGE_KEY = "woojae-dabin-guestbook-preview";
 const API_TIMEOUT_MS = 7000;
@@ -291,6 +292,9 @@ let isPhotoPinching = false;
 let isPhotoDragging = false;
 let suppressPhotoSwipeUntil = 0;
 let wheelZoomEndTimer = 0;
+let lastPhotoTapAt = 0;
+let lastPhotoTapX = 0;
+let lastPhotoTapY = 0;
 
 function escapeHtml(value) {
   return String(value)
@@ -975,6 +979,7 @@ function resetPhotoZoom() {
   isPhotoPinching = false;
   isPhotoDragging = false;
   pinchStartDistance = 0;
+  lastPhotoTapAt = 0;
   dialog.classList.remove("is-gesture-active", "is-dragging", "is-zoomed");
   setPhotoZoom(PHOTO_MIN_SCALE, 0, 0);
 }
@@ -1003,7 +1008,9 @@ function updatePhotoPinch(event) {
 
   const [firstTouch, secondTouch] = event.touches;
   const currentDistance = getTouchDistance(firstTouch, secondTouch);
-  const nextScale = pinchStartScale * (currentDistance / pinchStartDistance);
+  const distanceRatio = currentDistance / pinchStartDistance;
+  const scaleRatioFromGesture = distanceRatio < 1 ? Math.pow(distanceRatio, 1.75) : Math.pow(distanceRatio, 1.08);
+  const nextScale = pinchStartScale * scaleRatioFromGesture;
   const scaleRatio = clampNumber(nextScale, PHOTO_MIN_SCALE, PHOTO_MAX_SCALE) / pinchStartScale;
   const center = getTouchCenter(firstTouch, secondTouch);
   const nextTranslateX = center.x - (pinchStartCenterX - pinchStartTranslateX) * scaleRatio;
@@ -1054,7 +1061,7 @@ function endPhotoGesture() {
 }
 
 function isPhotoControlTarget(target) {
-  return target instanceof Element && Boolean(target.closest(".dialog-nav"));
+  return target instanceof Element && Boolean(target.closest(".dialog-nav, .dialog-reset"));
 }
 
 function handlePhotoTouchStart(event) {
@@ -1120,6 +1127,18 @@ function handlePhotoTouchEnd(event) {
     return;
   }
 
+  if (isPhotoDragging) {
+    const touch = event.changedTouches[0];
+
+    if (touch && Math.hypot(touch.clientX - dragStartX, touch.clientY - dragStartY) < 12) {
+      event.preventDefault();
+      handlePhotoTap(touch.clientX, touch.clientY);
+    }
+
+    endPhotoGesture();
+    return;
+  }
+
   if (isPhotoPinching || isPhotoDragging || isPhotoZoomed() || Date.now() < suppressPhotoSwipeUntil) {
     endPhotoGesture();
     return;
@@ -1136,6 +1155,30 @@ function handlePhotoTouchCancel() {
   endPhotoGesture();
 }
 
+function handlePhotoTap(clientX, clientY) {
+  const now = Date.now();
+  const isDoubleTap = now - lastPhotoTapAt < 320 && Math.hypot(clientX - lastPhotoTapX, clientY - lastPhotoTapY) < 34;
+
+  lastPhotoTapAt = now;
+  lastPhotoTapX = clientX;
+  lastPhotoTapY = clientY;
+
+  if (!isDoubleTap) {
+    return false;
+  }
+
+  suppressPhotoSwipeUntil = now + 280;
+  lastPhotoTapAt = 0;
+
+  if (isPhotoZoomed()) {
+    resetPhotoZoom();
+    return true;
+  }
+
+  zoomPhotoAroundPoint(clientX, clientY, 2);
+  return true;
+}
+
 function handlePhotoWheel(event) {
   if (!event.ctrlKey && !event.metaKey) {
     return;
@@ -1149,6 +1192,10 @@ function handlePhotoWheel(event) {
     dialog.classList.remove("is-gesture-active");
     setPhotoZoom(photoScale, photoTranslateX, photoTranslateY);
   }, 140);
+}
+
+function preventNativePhotoGesture(event) {
+  event.preventDefault();
 }
 
 function startPhotoSwipe(clientX, clientY) {
@@ -1167,8 +1214,15 @@ function finishPhotoSwipe(clientX, clientY) {
 
   const deltaX = clientX - swipeStartX;
   const deltaY = clientY - swipeStartY;
+  const absX = Math.abs(deltaX);
+  const absY = Math.abs(deltaY);
 
-  if (Math.abs(deltaX) < 45 || Math.abs(deltaX) < Math.abs(deltaY) * 1.2) {
+  if (absX < 12 && absY < 12) {
+    handlePhotoTap(clientX, clientY);
+    return;
+  }
+
+  if (absX < 45 || absX < absY * 1.2) {
     return;
   }
 
@@ -1565,6 +1619,7 @@ function downloadCalendar() {
 dialogClose.addEventListener("click", closePhoto);
 dialogPrev.addEventListener("click", showPrevPhoto);
 dialogNext.addEventListener("click", showNextPhoto);
+dialogReset.addEventListener("click", resetPhotoZoom);
 
 dialog.addEventListener("click", (event) => {
   if (event.target === dialog) {
@@ -1624,11 +1679,14 @@ if ("PointerEvent" in window) {
   });
 }
 
-photoViewer.addEventListener("touchstart", handlePhotoTouchStart, { passive: false });
-photoViewer.addEventListener("touchmove", handlePhotoTouchMove, { passive: false });
+photoViewer.addEventListener("touchstart", handlePhotoTouchStart, { passive: false, capture: true });
+photoViewer.addEventListener("touchmove", handlePhotoTouchMove, { passive: false, capture: true });
 photoViewer.addEventListener("touchend", handlePhotoTouchEnd);
 photoViewer.addEventListener("touchcancel", handlePhotoTouchCancel);
 photoViewer.addEventListener("wheel", handlePhotoWheel, { passive: false });
+photoViewer.addEventListener("gesturestart", preventNativePhotoGesture, { passive: false, capture: true });
+photoViewer.addEventListener("gesturechange", preventNativePhotoGesture, { passive: false, capture: true });
+photoViewer.addEventListener("gestureend", preventNativePhotoGesture, { passive: false, capture: true });
 
 dialogImage.addEventListener("load", () => {
   setPhotoZoom(photoScale, photoTranslateX, photoTranslateY);
