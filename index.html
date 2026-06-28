@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#f4efe6" />
     <title>김우재 · 김다빈 결혼합니다</title>
     <link rel="preload" href="assets/paper-ivory.webp" as="image" type="image/webp" />
-    <link rel="stylesheet" href="styles.css?v=20260621-gallery-zoom1" />
+    <link rel="stylesheet" href="styles.css?v=20260628-pinch-zoom1" />
   </head>
   <body>
     <main id="app" aria-label="김우재와 김다빈의 모바일 청첩장"></main>
@@ -20,13 +20,15 @@
       <div class="photo-viewer">
         <button class="dialog-nav dialog-prev" type="button" aria-label="이전 사진" data-photo-prev>‹</button>
         <figure class="dialog-figure">
-          <img alt="" />
+          <div class="dialog-image-stage">
+            <img alt="" draggable="false" />
+          </div>
           <figcaption class="dialog-counter" aria-live="polite"></figcaption>
         </figure>
         <button class="dialog-nav dialog-next" type="button" aria-label="다음 사진" data-photo-next>›</button>
       </div>
     </dialog>
 
-    <script src="script.js?v=20260628-photo-refresh1"></script>
+    <script src="script.js?v=20260628-pinch-zoom1"></script>
   </body>
 </html>

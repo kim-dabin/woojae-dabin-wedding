@@ -261,6 +261,7 @@ const WEDDING_DATA = {
 const app = document.querySelector("#app");
 const dialog = document.querySelector("#photoDialog");
 const dialogImage = dialog.querySelector("img");
+const dialogImageStage = dialog.querySelector(".dialog-image-stage");
 const dialogClose = dialog.querySelector(".dialog-close");
 const photoViewer = dialog.querySelector(".photo-viewer");
 const dialogCounter = dialog.querySelector(".dialog-counter");
@@ -274,6 +275,26 @@ let activePhotoIndex = 0;
 let scrollLockY = 0;
 let swipeStartX = 0;
 let swipeStartY = 0;
+const PHOTO_MIN_SCALE = 1;
+const PHOTO_MAX_SCALE = 4;
+const PHOTO_ZOOM_THRESHOLD = 1.02;
+let photoScale = PHOTO_MIN_SCALE;
+let photoTranslateX = 0;
+let photoTranslateY = 0;
+let pinchStartDistance = 0;
+let pinchStartScale = PHOTO_MIN_SCALE;
+let pinchStartCenterX = 0;
+let pinchStartCenterY = 0;
+let pinchStartTranslateX = 0;
+let pinchStartTranslateY = 0;
+let dragStartX = 0;
+let dragStartY = 0;
+let dragStartTranslateX = 0;
+let dragStartTranslateY = 0;
+let isPhotoPinching = false;
+let isPhotoDragging = false;
+let suppressPhotoSwipeUntil = 0;
+let wheelZoomEndTimer = 0;
 
 function escapeHtml(value) {
   return String(value)
@@ -793,6 +814,7 @@ function showPhotoAt(index) {
     return;
   }
 
+  resetPhotoZoom();
   const safeIndex = Number.isFinite(index) ? Math.trunc(index) : 0;
   activePhotoIndex = ((safeIndex % count) + count) % count;
   const photo = galleryPhotos[activePhotoIndex];
@@ -819,6 +841,7 @@ function closePhoto() {
 }
 
 function clearPhotoDialog() {
+  resetPhotoZoom();
   dialogImage.removeAttribute("src");
   dialogImage.alt = "";
   dialogCounter.textContent = "";
@@ -844,12 +867,260 @@ function unlockPageScroll() {
   window.setTimeout(restoreScroll, 80);
 }
 
+function clampNumber(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function isPhotoZoomed() {
+  return photoScale > PHOTO_ZOOM_THRESHOLD;
+}
+
+function getTouchDistance(firstTouch, secondTouch) {
+  return Math.hypot(firstTouch.clientX - secondTouch.clientX, firstTouch.clientY - secondTouch.clientY);
+}
+
+function getStageCenteredPoint(clientX, clientY) {
+  const rect = dialogImageStage.getBoundingClientRect();
+
+  return {
+    x: clientX - rect.left - rect.width / 2,
+    y: clientY - rect.top - rect.height / 2,
+  };
+}
+
+function getTouchCenter(firstTouch, secondTouch) {
+  return getStageCenteredPoint(
+    (firstTouch.clientX + secondTouch.clientX) / 2,
+    (firstTouch.clientY + secondTouch.clientY) / 2,
+  );
+}
+
+function clampPhotoTranslate(scale, translateX, translateY) {
+  const stageRect = dialogImageStage.getBoundingClientRect();
+  const imageWidth = dialogImage.offsetWidth || stageRect.width;
+  const imageHeight = dialogImage.offsetHeight || stageRect.height;
+  const maxX = Math.max(0, (imageWidth * scale - stageRect.width) / 2);
+  const maxY = Math.max(0, (imageHeight * scale - stageRect.height) / 2);
+
+  return {
+    x: clampNumber(translateX, -maxX, maxX),
+    y: clampNumber(translateY, -maxY, maxY),
+  };
+}
+
+function setPhotoZoom(nextScale, nextTranslateX = photoTranslateX, nextTranslateY = photoTranslateY) {
+  photoScale = clampNumber(nextScale, PHOTO_MIN_SCALE, PHOTO_MAX_SCALE);
+
+  if (!isPhotoZoomed()) {
+    photoScale = PHOTO_MIN_SCALE;
+    photoTranslateX = 0;
+    photoTranslateY = 0;
+  } else {
+    const clamped = clampPhotoTranslate(photoScale, nextTranslateX, nextTranslateY);
+    photoTranslateX = clamped.x;
+    photoTranslateY = clamped.y;
+  }
+
+  dialogImage.style.setProperty("--photo-scale", photoScale.toFixed(4));
+  dialogImage.style.setProperty("--photo-x", `${photoTranslateX.toFixed(2)}px`);
+  dialogImage.style.setProperty("--photo-y", `${photoTranslateY.toFixed(2)}px`);
+  dialog.classList.toggle("is-zoomed", isPhotoZoomed());
+}
+
+function resetPhotoZoom() {
+  isPhotoPinching = false;
+  isPhotoDragging = false;
+  pinchStartDistance = 0;
+  dialog.classList.remove("is-gesture-active", "is-dragging", "is-zoomed");
+  setPhotoZoom(PHOTO_MIN_SCALE, 0, 0);
+}
+
+function beginPhotoPinch(event) {
+  const [firstTouch, secondTouch] = event.touches;
+
+  pinchStartDistance = getTouchDistance(firstTouch, secondTouch);
+  pinchStartScale = photoScale;
+  const center = getTouchCenter(firstTouch, secondTouch);
+  pinchStartCenterX = center.x;
+  pinchStartCenterY = center.y;
+  pinchStartTranslateX = photoTranslateX;
+  pinchStartTranslateY = photoTranslateY;
+  isPhotoPinching = true;
+  isPhotoDragging = false;
+  suppressPhotoSwipeUntil = Date.now() + 350;
+  dialog.classList.add("is-gesture-active");
+  dialog.classList.remove("is-dragging");
+}
+
+function updatePhotoPinch(event) {
+  if (!isPhotoPinching || event.touches.length < 2 || pinchStartDistance <= 0) {
+    return;
+  }
+
+  const [firstTouch, secondTouch] = event.touches;
+  const currentDistance = getTouchDistance(firstTouch, secondTouch);
+  const nextScale = pinchStartScale * (currentDistance / pinchStartDistance);
+  const scaleRatio = clampNumber(nextScale, PHOTO_MIN_SCALE, PHOTO_MAX_SCALE) / pinchStartScale;
+  const center = getTouchCenter(firstTouch, secondTouch);
+  const nextTranslateX = center.x - (pinchStartCenterX - pinchStartTranslateX) * scaleRatio;
+  const nextTranslateY = center.y - (pinchStartCenterY - pinchStartTranslateY) * scaleRatio;
+
+  setPhotoZoom(nextScale, nextTranslateX, nextTranslateY);
+}
+
+function zoomPhotoAroundPoint(clientX, clientY, nextScale) {
+  const nextPhotoScale = clampNumber(nextScale, PHOTO_MIN_SCALE, PHOTO_MAX_SCALE);
+  const scaleRatio = nextPhotoScale / photoScale;
+  const center = getStageCenteredPoint(clientX, clientY);
+  const nextTranslateX = center.x - (center.x - photoTranslateX) * scaleRatio;
+  const nextTranslateY = center.y - (center.y - photoTranslateY) * scaleRatio;
+
+  setPhotoZoom(nextPhotoScale, nextTranslateX, nextTranslateY);
+}
+
+function beginPhotoDrag(touch) {
+  dragStartX = touch.clientX;
+  dragStartY = touch.clientY;
+  dragStartTranslateX = photoTranslateX;
+  dragStartTranslateY = photoTranslateY;
+  isPhotoDragging = true;
+  suppressPhotoSwipeUntil = Date.now() + 250;
+  dialog.classList.add("is-dragging");
+}
+
+function updatePhotoDrag(touch) {
+  if (!isPhotoDragging || !isPhotoZoomed()) {
+    return;
+  }
+
+  setPhotoZoom(
+    photoScale,
+    dragStartTranslateX + touch.clientX - dragStartX,
+    dragStartTranslateY + touch.clientY - dragStartY,
+  );
+}
+
+function endPhotoGesture() {
+  isPhotoPinching = false;
+  isPhotoDragging = false;
+  pinchStartDistance = 0;
+  suppressPhotoSwipeUntil = Date.now() + 250;
+  dialog.classList.remove("is-gesture-active", "is-dragging");
+  setPhotoZoom(photoScale, photoTranslateX, photoTranslateY);
+}
+
+function isPhotoControlTarget(target) {
+  return target instanceof Element && Boolean(target.closest(".dialog-nav"));
+}
+
+function handlePhotoTouchStart(event) {
+  if (isPhotoControlTarget(event.target)) {
+    return;
+  }
+
+  if (event.touches.length >= 2) {
+    event.preventDefault();
+    beginPhotoPinch(event);
+    return;
+  }
+
+  if (event.touches.length !== 1) {
+    return;
+  }
+
+  const touch = event.touches[0];
+
+  if (isPhotoZoomed()) {
+    event.preventDefault();
+    beginPhotoDrag(touch);
+    return;
+  }
+
+  startPhotoSwipe(touch.clientX, touch.clientY);
+}
+
+function handlePhotoTouchMove(event) {
+  if (isPhotoControlTarget(event.target)) {
+    return;
+  }
+
+  if (event.touches.length >= 2) {
+    event.preventDefault();
+
+    if (!isPhotoPinching) {
+      beginPhotoPinch(event);
+    }
+
+    updatePhotoPinch(event);
+    return;
+  }
+
+  if (event.touches.length === 1 && isPhotoDragging) {
+    event.preventDefault();
+    updatePhotoDrag(event.touches[0]);
+  }
+}
+
+function handlePhotoTouchEnd(event) {
+  if (isPhotoControlTarget(event.target)) {
+    return;
+  }
+
+  if (event.touches.length >= 2) {
+    beginPhotoPinch(event);
+    return;
+  }
+
+  if (isPhotoPinching && event.touches.length === 1 && isPhotoZoomed()) {
+    beginPhotoDrag(event.touches[0]);
+    return;
+  }
+
+  if (isPhotoPinching || isPhotoDragging || isPhotoZoomed() || Date.now() < suppressPhotoSwipeUntil) {
+    endPhotoGesture();
+    return;
+  }
+
+  const touch = event.changedTouches[0];
+
+  if (touch) {
+    finishPhotoSwipe(touch.clientX, touch.clientY);
+  }
+}
+
+function handlePhotoTouchCancel() {
+  endPhotoGesture();
+}
+
+function handlePhotoWheel(event) {
+  if (!event.ctrlKey && !event.metaKey) {
+    return;
+  }
+
+  event.preventDefault();
+  dialog.classList.add("is-gesture-active");
+  zoomPhotoAroundPoint(event.clientX, event.clientY, photoScale * Math.exp(-event.deltaY * 0.006));
+  window.clearTimeout(wheelZoomEndTimer);
+  wheelZoomEndTimer = window.setTimeout(() => {
+    dialog.classList.remove("is-gesture-active");
+    setPhotoZoom(photoScale, photoTranslateX, photoTranslateY);
+  }, 140);
+}
+
 function startPhotoSwipe(clientX, clientY) {
+  if (isPhotoZoomed() || Date.now() < suppressPhotoSwipeUntil) {
+    return;
+  }
+
   swipeStartX = clientX;
   swipeStartY = clientY;
 }
 
 function finishPhotoSwipe(clientX, clientY) {
+  if (isPhotoZoomed() || Date.now() < suppressPhotoSwipeUntil) {
+    return;
+  }
+
   const deltaX = clientX - swipeStartX;
   const deltaY = clientY - swipeStartY;
 
@@ -1285,6 +1556,10 @@ document.addEventListener("keydown", (event) => {
 
 if ("PointerEvent" in window) {
   photoViewer.addEventListener("pointerdown", (event) => {
+    if (event.pointerType === "touch") {
+      return;
+    }
+
     if (event.pointerType === "mouse" && event.button !== 0) {
       return;
     }
@@ -1293,27 +1568,27 @@ if ("PointerEvent" in window) {
   });
 
   photoViewer.addEventListener("pointerup", (event) => {
+    if (event.pointerType === "touch") {
+      return;
+    }
+
     if (event.pointerType === "mouse" && event.button !== 0) {
       return;
     }
 
     finishPhotoSwipe(event.clientX, event.clientY);
   });
-} else {
-  photoViewer.addEventListener(
-    "touchstart",
-    (event) => {
-      const touch = event.changedTouches[0];
-      startPhotoSwipe(touch.clientX, touch.clientY);
-    },
-    { passive: true },
-  );
-
-  photoViewer.addEventListener("touchend", (event) => {
-    const touch = event.changedTouches[0];
-    finishPhotoSwipe(touch.clientX, touch.clientY);
-  });
 }
+
+photoViewer.addEventListener("touchstart", handlePhotoTouchStart, { passive: false });
+photoViewer.addEventListener("touchmove", handlePhotoTouchMove, { passive: false });
+photoViewer.addEventListener("touchend", handlePhotoTouchEnd);
+photoViewer.addEventListener("touchcancel", handlePhotoTouchCancel);
+photoViewer.addEventListener("wheel", handlePhotoWheel, { passive: false });
+
+dialogImage.addEventListener("load", () => {
+  setPhotoZoom(photoScale, photoTranslateX, photoTranslateY);
+});
 
 window.WeddingInvitation = {
   data: WEDDING_DATA,
