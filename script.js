@@ -465,6 +465,11 @@ function render() {
       </div>
     </section>
 
+    <section class="section reception-notice" aria-label="서산 피로연 별도 안내">
+      <p class="reception-notice-text">서산 피로연 안내를 받으신 분은 별도 안내 페이지를 확인해 주세요.</p>
+      <a class="line-button reception-notice-link" href="reception/">서산 피로연 안내</a>
+    </section>
+
     <section class="section directions" aria-labelledby="directionsTitle">
       <p id="directionsTitle" class="section-kicker">LOCATION</p>
       <h2 class="section-title">오시는 길</h2>
