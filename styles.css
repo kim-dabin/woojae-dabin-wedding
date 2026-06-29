@@ -506,25 +506,6 @@ figure {
   font-weight: 600;
 }
 
-.reception-notice {
-  padding-top: 42px;
-  padding-bottom: 42px;
-  text-align: center;
-}
-
-.reception-notice-text {
-  max-width: 280px;
-  margin: 0 auto 15px;
-  color: var(--ink-soft);
-  font-size: 0.86rem;
-  line-height: 1.85;
-  word-break: keep-all;
-}
-
-.reception-notice-link {
-  font-size: 0.74rem;
-}
-
 .reception-panel {
   max-width: 330px;
   margin: 0 auto;
