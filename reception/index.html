@@ -11,9 +11,24 @@
     <title>서산 피로연 안내 | 김우재 · 김다빈</title>
     <link rel="preload" href="../assets/paper-ivory.webp" as="image" type="image/webp" />
     <link rel="preload" href="../assets/photos/photo-01.jpg" as="image" />
-    <link rel="stylesheet" href="../styles.css?v=20260629-reception-page1" />
+    <link rel="stylesheet" href="../styles.css?v=20260719-reception-gallery1" />
   </head>
   <body class="reception-page">
+    <dialog id="photoDialog" class="photo-dialog" aria-label="이미지 크게 보기">
+      <button class="dialog-close" type="button" aria-label="이미지 닫기">닫기</button>
+      <div class="photo-viewer">
+        <button class="dialog-nav dialog-prev" type="button" aria-label="이전 사진" data-photo-prev>‹</button>
+        <figure class="dialog-figure">
+          <div class="dialog-image-stage">
+            <img alt="" draggable="false" />
+          </div>
+          <figcaption class="dialog-counter" aria-live="polite"></figcaption>
+        </figure>
+        <button class="dialog-nav dialog-next" type="button" aria-label="다음 사진" data-photo-next>›</button>
+        <button class="dialog-reset" type="button" data-photo-reset aria-label="이미지 원래 크기로 보기">원래 크기</button>
+      </div>
+    </dialog>
+
     <main id="app" aria-label="김우재와 김다빈의 서산 피로연 안내">
       <section class="section reception-cover" aria-labelledby="receptionHeroTitle">
         <div class="reception-cover-photo" aria-hidden="true">
@@ -60,6 +75,13 @@
         </div>
       </section>
 
+      <section class="section gallery reception-gallery" aria-labelledby="receptionGalleryTitle">
+        <p id="receptionGalleryTitle" class="section-kicker">GALLERY</p>
+        <h2 class="section-title">우리의 순간</h2>
+        <div class="section-rule-small" aria-hidden="true"></div>
+        <div class="photo-strip" data-reception-gallery aria-label="김우재와 김다빈 사진 갤러리"></div>
+      </section>
+
       <section class="section reception-location" aria-labelledby="receptionLocationTitle">
         <p id="receptionLocationTitle" class="section-kicker">LOCATION</p>
         <h2 class="section-title">오시는 길</h2>
@@ -99,5 +121,6 @@
         </p>
       </section>
     </main>
+    <script src="reception.js?v=20260719-reception-gallery1"></script>
   </body>
 </html>
