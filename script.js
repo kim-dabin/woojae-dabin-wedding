@@ -266,6 +266,7 @@ const dialogReset = dialog.querySelector("[data-photo-reset]");
 const RSVP_STORAGE_KEY = "woojae-dabin-rsvp-preview";
 const GUESTBOOK_STORAGE_KEY = "woojae-dabin-guestbook-preview";
 const API_TIMEOUT_MS = 7000;
+const SUPPORT_MESSAGE = "계속 문제가 있을 경우, 연락처를 통해 신부 김다빈에게 문자로 알려주세요.";
 let galleryPhotos = [];
 let dialogPhotos = [];
 let activePhotoIndex = 0;
@@ -1439,7 +1440,7 @@ async function handleRsvpSubmit(event) {
     form.reset();
     closeManagedDialog("rsvpDialog");
   } catch (error) {
-    showToast(error.message || "저장에 실패했습니다.");
+    showToast(`${error.message || "저장에 실패했습니다."} ${SUPPORT_MESSAGE}`);
   } finally {
     setFormPending(form, false);
   }
@@ -1480,7 +1481,7 @@ async function handleGuestbookSubmit(event) {
     form.reset();
     await renderGuestbookMessages();
   } catch (error) {
-    showToast(error.message || "저장에 실패했습니다.");
+    showToast(`${error.message || "저장에 실패했습니다."} ${SUPPORT_MESSAGE}`);
   } finally {
     setFormPending(form, false);
   }
@@ -1515,7 +1516,7 @@ async function renderGuestbookMessages() {
   try {
     messages = await loadGuestbookMessages();
   } catch (error) {
-    list.innerHTML = `<p class="guestbook-empty">${escapeHtml(error.message || "방명록을 불러오지 못했습니다.")}</p>`;
+    list.innerHTML = `<p class="guestbook-empty">${escapeHtml(error.message || "방명록을 불러오지 못했습니다.")}<br>${escapeHtml(SUPPORT_MESSAGE)}</p>`;
     return;
   }
 
@@ -1549,9 +1550,10 @@ function showToast(message) {
   toast.textContent = message;
   toast.classList.add("is-visible");
   window.clearTimeout(showToast.timer);
+  const duration = message.length > 35 ? 4800 : 1800;
   showToast.timer = window.setTimeout(() => {
     toast.classList.remove("is-visible");
-  }, 1800);
+  }, duration);
 }
 
 async function copyText(value) {
