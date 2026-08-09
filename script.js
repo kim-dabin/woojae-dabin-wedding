@@ -157,6 +157,16 @@ const WEDDING_DATA = {
       alt: "나무 아래 돗자리에서 과일을 나누는 김우재와 김다빈",
     },
     {
+      src: "assets/photos/photo-18.jpg",
+      suggestedFile: "assets/photos/photo-18.jpg",
+      alt: "돗자리 위에서 과일을 든 김우재와 김다빈",
+    },
+    {
+      src: "assets/photos/photo-21.jpg",
+      suggestedFile: "assets/photos/photo-21.jpg",
+      alt: "돗자리 위에서 부케를 들고 마주 보는 김우재와 김다빈",
+    },
+    {
       src: "assets/photos/photo-04.jpg",
       suggestedFile: "assets/photos/photo-04.jpg",
       alt: "나무 아래 돗자리에서 서로를 촬영하는 김우재와 김다빈",
@@ -197,11 +207,6 @@ const WEDDING_DATA = {
       alt: "주방에서 딸기 접시를 든 김우재와 김다빈",
     },
     {
-      src: "assets/photos/photo-20.jpg",
-      suggestedFile: "assets/photos/photo-20.jpg",
-      alt: "테이블 너머 딸기를 바라보는 김우재와 김다빈",
-    },
-    {
       src: "assets/photos/photo-22.jpg",
       suggestedFile: "assets/photos/photo-22.jpg",
       alt: "창가 테이블에 나란히 앉은 김우재와 김다빈",
@@ -210,11 +215,6 @@ const WEDDING_DATA = {
       src: "assets/photos/photo-05.jpg",
       suggestedFile: "assets/photos/photo-05.jpg",
       alt: "오래된 건물 앞 벤치에 나란히 앉은 김우재와 김다빈",
-    },
-    {
-      src: "assets/photos/photo-23.jpg",
-      suggestedFile: "assets/photos/photo-23.jpg",
-      alt: "꽃다발을 들고 장난스러운 표정을 짓는 김우재와 김다빈",
     },
     {
       src: "assets/photos/photo-24.jpg",
